@@ -2,16 +2,17 @@
 <html>
   <head>
     <meta charset="UTF-8" />
-    <title>ROCOBOT By VforTalent</title>
+    <title>Instagram-like Grid</title>
     <style>
       body {
         margin: 0;
         padding: 0;
         background-color: black;
+        color: white;
       }
 
       .container {
-        margin: 0 20px;
+        margin: 0 10px;
       }
 
       #iframes-container {
@@ -37,17 +38,16 @@
         max-height: 1280px;
       }
 
-      .iframe-wrapper::before {
+      .iframe-wrapper::after {
         content: attr(data-url);
         position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
+        bottom: 0;
+        right: 0;
         padding: 10px;
-        font-size: 18px;
+        font-size: 16px;
         font-weight: bold;
-        color: black;
-        background-color: rgba(255, 255, 255, 0.7);
+        color: white;
+        background-color: rgba(0, 0, 0, 0.7);
         z-index: 1;
         box-sizing: border-box;
       }
@@ -56,21 +56,18 @@
         position: fixed;
         top: 10px;
         right: 10px;
-        background-color: blue;
-        color: white;
         padding: 10px 20px;
+        font-size: 16px;
+        font-weight: bold;
+        color: white;
+        background-color: blue;
         border: none;
         border-radius: 5px;
-        font-size: 16px;
         cursor: pointer;
       }
 
       .switch-button:hover {
         background-color: darkblue;
-      }
-
-      .switch-button:focus {
-        outline: none;
       }
     </style>
   </head>
@@ -78,14 +75,16 @@
     <div class="container">
       <h1>Instagram-like Grid</h1>
       <div id="iframes-container"></div>
-      <button class="switch-button" id="switchButton">Grid</button>
     </div>
+    <button class="switch-button">Grid</button>
+
     <script>
       const iframesContainer = document.getElementById("iframes-container");
       const switchButton = document.querySelector(".switch-button");
+      let isGrid = true;
 
       const referenceList = [
-       "https://wwww.vforstudio.com/",
+ "https://wwww.vforstudio.com/",
         "https://unireso-studio.com/",
         "https://additivestudios.co.uk/",
         "https://www.dkft.fr/",
@@ -188,45 +187,31 @@
         "https://www.dada-projects.com/",
       ];
 
-      const extractSiteName = (url) => {
-        const urlObj = new URL(url);
-        const hostname = urlObj.hostname.replace("www.", "");
-        return hostname;
-      };
-
-      referenceList.sort((a, b) => {
-        const siteNameA = extractSiteName(a);
-        const siteNameB = extractSiteName(b);
-        return siteNameA.localeCompare(siteNameB);
-      });
-
-      const createIframeWrapper = (url) => {
-        const trimmedSiteUrl = url.trim();
+      referenceList.forEach((siteUrl) => {
+        const trimmedSiteUrl = siteUrl.trim();
         const iframeWrapper = document.createElement("div");
         iframeWrapper.classList.add("iframe-wrapper");
         const iframe = document.createElement("iframe");
         iframe.src = trimmedSiteUrl;
         iframe.setAttribute("loading", "lazy");
         iframeWrapper.appendChild(iframe);
-        return iframeWrapper;
-      };
-
-      referenceList.forEach((siteUrl) => {
-        const iframeWrapper = createIframeWrapper(siteUrl);
+        iframeWrapper.setAttribute("data-url", trimmedSiteUrl);
         iframesContainer.appendChild(iframeWrapper);
       });
 
       const toggleView = () => {
-        if (iframesContainer.style.flexWrap === "wrap") {
-          iframesContainer.style.flexWrap = "nowrap";
+        if (isGrid) {
+          iframesContainer.style.gridTemplateColumns = "1fr";
+          switchButton.textContent = "List";
         } else {
-          iframesContainer.style.flexWrap = "wrap";
+          iframesContainer.style.gridTemplateColumns =
+            "repeat(auto-fit, minmax(500px, 1fr))";
+          switchButton.textContent = "Grid";
         }
+        isGrid = !isGrid;
       };
 
       switchButton.addEventListener("click", toggleView);
     </script>
   </body>
 </html>
-
-
