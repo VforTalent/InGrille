@@ -5,136 +5,50 @@
     <title>ROCOBOT by Vfor Talent</title>
     <style>
       body {
-        background-color: #fafafa;
-        font-family: Arial, sans-serif;
-      }
-      
-      .container {
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 20px;
-      }
-      
-      .header {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        margin-bottom: 20px;
-      }
-      
-      .header h1 {
-        font-size: 24px;
-        font-weight: bold;
         margin: 0;
+        padding: 0;
+        background-color: black;
       }
-      
-      .grid {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 20px;
+
+      #iframes-container {
+        display: flex;
+        flex-wrap: wrap;
+        align-content: flex-start;
+        height: 100vh;
+        width: 100vw;
       }
-      
-      .grid-item {
-        position: relative;
+
+      .iframe-wrapper {
+        flex: 1 0 33.33%;
+        height: 33.33vh;
         overflow: hidden;
-        background-color: #fff;
-        border: 1px solid #dbdbdb;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        border-radius: 4px;
       }
-      
-      .grid-item:before {
-        content: "";
-        display: block;
-        padding-top: 100%;
-      }
-      
-      .grid-item img {
-        position: absolute;
-        top: 0;
-        left: 0;
+
+      .iframe-wrapper > iframe {
         width: 100%;
         height: 100%;
         object-fit: cover;
       }
-      
-      .grid-item .overlay {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        background-color: rgba(0, 0, 0, 0.4);
-        opacity: 0;
-        transition: opacity 0.3s ease;
-      }
-      
-      .grid-item:hover .overlay {
-        opacity: 1;
-      }
-      
-      .grid-item .overlay-content {
-        text-align: center;
-        color: #fff;
-      }
-      
-      .grid-item .overlay-content h2 {
-        font-size: 18px;
-        font-weight: bold;
-        margin: 0;
-        margin-bottom: 10px;
-      }
-      
+
       .switch-button {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        margin-top: 20px;
-      }
-      
-      .switch-button button {
-        background-color: #3897f0;
-        border: none;
-        color: #fff;
-        padding: 10px 20px;
-        font-size: 16px;
-        font-weight: bold;
-        border-radius: 4px;
-        cursor: pointer;
-      }
-            .iframe-wrapper > iframe {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        max-width: 1920px;
-        max-height: 1280px;
+        position: fixed;
+        top: 10px;
+        right: 10px;
       }
     </style>
   </head>
   <body>
-    <div class="container">
-      <div class="header">
-        <h1>ROCOBOT by Vfor Talent</h1>
-      </div>
-      
-      <div class="grid" id="iframes-container"></div>
-      
-      <div class="switch-button">
-        <button id="switchButton">Switch</button>
-      </div>
-    </div>
-    
+    <h1>ROCOBOT by Vfor Talent</h1>
+    <div id="iframes-container"></div>
+    <button class="switch-button">Switch</button>
     <script>
       const iframesContainer = document.getElementById("iframes-container");
-      const switchButton = document.getElementById("switchButton");
+      const switchButton = document.querySelector(".switch-button");
 
       const referenceList = [
-   "https://wwww.vforstudio.com/",
+       "https://wwww.vforstudio.com/",
+        "https://unireso-studio.com/",
+        "https://additivestudios.co.uk/",
         "https://www.dkft.fr/",
         "http://www.mecanique-g.com/",
         "https://www.lightfield.london/",
@@ -177,13 +91,9 @@
         "https://lecube.tv/",
         "https://www.les-monstres.com/",
         "https://media.work/",
-        "https://studiotaktil.com/",
         "https://www.unit.tv/",
-        "https://www.rawandrendered.com/",
         "https://www.altcinc.com/",
         "https://onesal.com/",
-        "https://spotstudio.es/",
-        "https://www.studioprivate.co.uk/",
         "https://www.studioriver.fr/",
         "https://newformat.io/",
         "https://www.monarch.tv/",
@@ -192,7 +102,6 @@
         "https://www.manor.studio/",
         "https://www.studioprivate.co.uk/",
         "https://www.replica.works/",
-        "https://www.vforstudio.com/",
         "https://mvsm.com/",
         "https://www.trizz.tv/",
         "https://sixnfive.com/",
@@ -202,24 +111,18 @@
         "https://abra.network/",
         "https://yambo-studio.com/",
         "https://wangsoderstrom.com/",
-        "https://nexusstudios.com/",
         "https://www.tomorrowbureau.io/",
         "https://studiotaktil.com/",
         "https://www.tactyc.studio/",
         "https://www.daydreamervfx.com/",
         "https://www.rawandrendered.com/",
-        "https://onesal.com/",
         "https://www.firm-studio.fr/",
         "https://spotstudio.es/",
         "https://www.bluenode.paris/",
-        "https://www.studioriver.fr/",
-        "https://newformat.io/",
         "https://frame.dk/",
         "https://serialcut.com/",
         "https://www.bureauklausalman.com/",
-        "https://ditroit.it/",
         "https://thescope.studio/",
-        "https://www.found-studio.com/",
         "https://www.alreadybeenchewed.tv/",
         "https://analogstudio.co.uk/",
         "https://untoldstudios.tv/",
@@ -228,55 +131,62 @@
         "https://zeitguised.com/",
         "https://fyihenriksson.com/",
         "https://sehsucht.de/",
-        "https://www.digital-district.fr/",
         "https://www.rfvisuals.com/",
-        "https://naive.se/",
         "https://www.time-based-arts.com/",
         "https://blinkink.co.uk/our-work/",
-        "https://www.psyop.com/",
         "https://heycarbon.com/",
         "https://www.mimicproductions.com/",
-        "https://nexusstudios.com/",
         "http://www.mikrosimage.com/",
-       ]; 
-          referenceList.sort((a, b) => {
-    const siteNameA = extractSiteName(a);
-    const siteNameB = extractSiteName(b);
-    return siteNameA.localeCompare(siteNameB);
-  });
+        "https://www.jsragency.com/artists",
+        "https://friendselectric.tv/",
+        "https://mainframe.co.uk/",
+        "https://www.protoeditions.co/projects",
+        "https://www.arsthanea.com/",
+        "https://imaginaryforces.com/",
+        "https://trauminc.com/",
+        "https://8apr.de/",
+        "https://panoply.co.uk/",
+        "https://www.dada-projects.com/",
+      ];
 
-  referenceList.forEach((url) => {
-    const siteName = extractSiteName(url);
-    const iframe = document.createElement("iframe");
-    iframe.src = url;
-    iframe.title = siteName;
-    iframe.className = "grid-item";
-    iframesContainer.appendChild(iframe);
+      const extractSiteName = (url) => {
+        const urlObj = new URL(url);
+        const hostname = urlObj.hostname.replace("www.", "");
+        return hostname;
+      };
 
-    const overlay = document.createElement("div");
-    overlay.className = "overlay";
+      referenceList.sort((a, b) => {
+        const siteNameA = extractSiteName(a);
+        const siteNameB = extractSiteName(b);
+        return siteNameA.localeCompare(siteNameB);
+      });
 
-    const overlayContent = document.createElement("div");
-    overlayContent.className = "overlay-content";
+      const createIframeWrapper = (url) => {
+        const trimmedSiteUrl = url.trim();
+        const iframeWrapper = document.createElement("div");
+        iframeWrapper.classList.add("iframe-wrapper");
+        const iframe = document.createElement("iframe");
+        iframe.src = trimmedSiteUrl;
+        iframe.setAttribute("loading", "lazy");
+        iframeWrapper.appendChild(iframe);
+        return iframeWrapper;
+      };
 
-    const overlayText = document.createElement("h2");
-overlayText.textContent = siteName;
-    
-        overlayContent.appendChild(overlayText);
-    overlay.appendChild(overlayContent);
-    iframe.appendChild(overlay);
-  });
+      referenceList.forEach((siteUrl) => {
+        const iframeWrapper = createIframeWrapper(siteUrl);
+        iframesContainer.appendChild(iframeWrapper);
+      });
 
-  function extractSiteName(url) {
-    const host = new URL(url).hostname;
-    return host.startsWith("www.") ? host.substring(4) : host;
-  }
+      const toggleView = () => {
+        if (iframesContainer.style.flexWrap === "wrap") {
+          iframesContainer.style.flexWrap = "nowrap";
+        } else {
+          iframesContainer.style.flexWrap = "wrap";
+        }
+      };
 
-  switchButton.addEventListener("click", () => {
-    iframesContainer.classList.toggle("grid");
-    iframesContainer.classList.toggle("list");
-  });
-</script>
+      switchButton.addEventListener("click", toggleView);
+    </script>
   </body>
 </html>
 
