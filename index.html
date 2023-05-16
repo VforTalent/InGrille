@@ -5,87 +5,61 @@
     <title>ROCOBOT</title>
     <style>
       body {
-        margin: 0;
-        padding: 0;
         background-color: black;
-        color: white;
+        margin: 10px;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
       }
-
-      .container {
-        margin: 0 30px;
-      }
-
       #iframes-container {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+        width: calc(100% - 220px);
+        display: flex;
+        flex-wrap: wrap;
         gap: 20px;
       }
-
       .iframe-wrapper {
         position: relative;
+        width: 100%;
         height: 0;
         padding-bottom: 56.25%; /* 16:9 aspect ratio */
         overflow: hidden;
       }
-
       .iframe-wrapper > iframe {
         position: absolute;
         top: 0;
         left: 0;
         width: 100%;
         height: 100%;
-        max-width: 1920px;
-        max-height: 1280px;
       }
-
-      .iframe-wrapper::after {
-        content: attr(data-url);
+      .site-title {
         position: absolute;
-        bottom: 0;
-        right: 0;
-        padding: 10px;
-        font-size: 16px;
-        font-weight: bold;
+        bottom: 10px;
+        left: 10px;
         color: white;
-        background-color: rgba(0, 0, 0, 0.7);
-        z-index: 1;
-        box-sizing: border-box;
+        font-size: 16px;
       }
-
       .switch-button {
-        position: fixed;
-        top: 10px;
-        right: 10px;
-        padding: 10px 20px;
-        font-size: 16px;
-        font-weight: bold;
-        color: white;
         background-color: blue;
+        color: white;
+        padding: 10px 20px;
         border: none;
         border-radius: 5px;
+        margin-top: 10px;
         cursor: pointer;
-      }
-
-      .switch-button:hover {
-        background-color: darkblue;
       }
     </style>
   </head>
   <body>
-    <div class="container">
-      <h1>ROCOBOT</h1>
-      <div id="iframes-container"></div>
-    </div>
-    <button class="switch-button">Grid</button>
+    <h1 style="color: white;">ROCOBOT</h1>
+    <div id="iframes-container"></div>
+    <button class="switch-button">List</button>
 
     <script>
       const iframesContainer = document.getElementById("iframes-container");
       const switchButton = document.querySelector(".switch-button");
-      let isGrid = true;
 
       const referenceList = [
- "https://wwww.vforstudio.com/",
-        "https://unireso-studio.com/",
+ "https://unireso-studio.com/",
         "https://additivestudios.co.uk/",
         "https://www.dkft.fr/",
         "http://www.mecanique-g.com/",
@@ -187,31 +161,54 @@
         "https://www.dada-projects.com/",
       ];
 
-      referenceList.forEach((siteUrl) => {
-        const trimmedSiteUrl = siteUrl.trim();
+      const extractSiteName = (url) => {
+        const urlObj = new URL(url);
+        const hostname = urlObj.hostname.replace("www.", "");
+        return hostname;
+      };
+
+      const sortReferenceList = (list) => {
+        return list.sort((a, b) => {
+          const siteNameA = extractSiteName(a);
+          const siteNameB = extractSiteName(b);
+          return siteNameA.localeCompare(siteNameB);
+        });
+      };
+
+      const createIframeWrapper = (url, title) => {
+        const trimmedSiteUrl = url.trim();
         const iframeWrapper = document.createElement("div");
         iframeWrapper.classList.add("iframe-wrapper");
         const iframe = document.createElement("iframe");
         iframe.src = trimmedSiteUrl;
         iframe.setAttribute("loading", "lazy");
         iframeWrapper.appendChild(iframe);
-        iframeWrapper.setAttribute("data-url", trimmedSiteUrl);
-        iframesContainer.appendChild(iframeWrapper);
-      });
+        const siteTitle = document.createElement("div");
+        siteTitle.classList.add("site-title");
+        siteTitle.innerText = title;
+        iframeWrapper.appendChild(siteTitle);
+        return iframeWrapper;
+      };
 
       const toggleView = () => {
-        if (isGrid) {
-          iframesContainer.style.gridTemplateColumns = "1fr";
-          switchButton.textContent = "List";
+        if (iframesContainer.style.display === "flex") {
+          iframesContainer.style.display = "block";
+          switchButton.innerText = "Grid";
         } else {
-          iframesContainer.style.gridTemplateColumns =
-            "repeat(auto-fit, minmax(500px, 1fr))";
-          switchButton.textContent = "Grid";
+          iframesContainer.style.display = "flex";
+          switchButton.innerText = "List";
         }
-        isGrid = !isGrid;
       };
 
       switchButton.addEventListener("click", toggleView);
+
+      const sortedReferenceList = sortReferenceList(referenceList);
+
+      sortedReferenceList.forEach((siteUrl) => {
+        const siteTitle = extractSiteName(siteUrl);
+        const iframeWrapper = createIframeWrapper(siteUrl, siteTitle);
+        iframesContainer.appendChild(iframeWrapper);
+      });
     </script>
   </body>
 </html>
