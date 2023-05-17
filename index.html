@@ -6,16 +6,25 @@
     <style>
       body {
         background-color: black;
-        margin: 10px;
+        margin: 0;
         display: flex;
-        flex-wrap: wrap;
-        justify-content: space-between;
+        justify-content: center;
+        font-family: "Helvetica", sans-serif;
       }
-      #iframes-container {
-        width: calc(100% - 220px);
+
+      h1,
+      button,
+      .site-title {
+        font-family: "Helvetica", sans-serif;
+        color: white;
+      }
+
+      .container {
         display: flex;
         flex-wrap: wrap;
+        justify-content: center;
         gap: 20px;
+        padding: 100px;
       }
       .iframe-wrapper {
         position: relative;
@@ -31,36 +40,43 @@
         width: 100%;
         height: 100%;
       }
+      .site-wrapper {
+        position: relative;
+        width: 100%;
+        height: auto;
+      }
       .site-title {
         position: absolute;
-        bottom: 10px;
-        left: 10px;
-        color: white;
-        font-size: 16px;
+        bottom: 0;
+        left: 0;
+        margin: 10px;
+        font-size: 18px;
+        font-weight: bold;
       }
       .switch-button {
+        position: fixed;
+        top: 10px;
+        left: 10px;
         background-color: blue;
         color: white;
         padding: 10px 20px;
         border: none;
         border-radius: 5px;
-        margin-top: 10px;
         cursor: pointer;
       }
     </style>
   </head>
   <body>
-    <h1 style="color: white;">ROCOBOT</h1>
-    <div id="iframes-container"></div>
-    <button class="switch-button">List</button>
+    <h1>ROCOBOT</h1>
+    <button class="switch-button">Grid</button>
+    <div class="container" id="iframes-container"></div>
 
     <script>
       const iframesContainer = document.getElementById("iframes-container");
       const switchButton = document.querySelector(".switch-button");
 
       const referenceList = [
- "https://unireso-studio.com/",
-        "https://additivestudios.co.uk/",
+   "https://wwww.vforstudio.com/",
         "https://www.dkft.fr/",
         "http://www.mecanique-g.com/",
         "https://www.lightfield.london/",
@@ -103,9 +119,13 @@
         "https://lecube.tv/",
         "https://www.les-monstres.com/",
         "https://media.work/",
+        "https://studiotaktil.com/",
         "https://www.unit.tv/",
+        "https://www.rawandrendered.com/",
         "https://www.altcinc.com/",
         "https://onesal.com/",
+        "https://spotstudio.es/",
+        "https://www.studioprivate.co.uk/",
         "https://www.studioriver.fr/",
         "https://newformat.io/",
         "https://www.monarch.tv/",
@@ -114,6 +134,7 @@
         "https://www.manor.studio/",
         "https://www.studioprivate.co.uk/",
         "https://www.replica.works/",
+        "https://www.vforstudio.com/",
         "https://mvsm.com/",
         "https://www.trizz.tv/",
         "https://sixnfive.com/",
@@ -123,18 +144,24 @@
         "https://abra.network/",
         "https://yambo-studio.com/",
         "https://wangsoderstrom.com/",
+        "https://nexusstudios.com/",
         "https://www.tomorrowbureau.io/",
         "https://studiotaktil.com/",
         "https://www.tactyc.studio/",
         "https://www.daydreamervfx.com/",
         "https://www.rawandrendered.com/",
+        "https://onesal.com/",
         "https://www.firm-studio.fr/",
         "https://spotstudio.es/",
         "https://www.bluenode.paris/",
+        "https://www.studioriver.fr/",
+        "https://newformat.io/",
         "https://frame.dk/",
         "https://serialcut.com/",
         "https://www.bureauklausalman.com/",
+        "https://ditroit.it/",
         "https://thescope.studio/",
+        "https://www.found-studio.com/",
         "https://www.alreadybeenchewed.tv/",
         "https://analogstudio.co.uk/",
         "https://untoldstudios.tv/",
@@ -143,22 +170,16 @@
         "https://zeitguised.com/",
         "https://fyihenriksson.com/",
         "https://sehsucht.de/",
+        "https://www.digital-district.fr/",
         "https://www.rfvisuals.com/",
+        "https://naive.se/",
         "https://www.time-based-arts.com/",
         "https://blinkink.co.uk/our-work/",
+        "https://www.psyop.com/",
         "https://heycarbon.com/",
         "https://www.mimicproductions.com/",
+        "https://nexusstudios.com/",
         "http://www.mikrosimage.com/",
-        "https://www.jsragency.com/artists",
-        "https://friendselectric.tv/",
-        "https://mainframe.co.uk/",
-        "https://www.protoeditions.co/projects",
-        "https://www.arsthanea.com/",
-        "https://imaginaryforces.com/",
-        "https://trauminc.com/",
-        "https://8apr.de/",
-        "https://panoply.co.uk/",
-        "https://www.dada-projects.com/",
       ];
 
       const extractSiteName = (url) => {
@@ -183,32 +204,33 @@
         iframe.src = trimmedSiteUrl;
         iframe.setAttribute("loading", "lazy");
         iframeWrapper.appendChild(iframe);
+        const siteWrapper = document.createElement("div");
+        siteWrapper.classList.add("site-wrapper");
         const siteTitle = document.createElement("div");
         siteTitle.classList.add("site-title");
         siteTitle.innerText = title;
-        iframeWrapper.appendChild(siteTitle);
+        siteWrapper.appendChild(siteTitle);
+        iframeWrapper.appendChild(siteWrapper);
         return iframeWrapper;
       };
 
-      const toggleView = () => {
-        if (iframesContainer.style.display === "flex") {
-          iframesContainer.style.display = "block";
-          switchButton.innerText = "Grid";
-        } else {
-          iframesContainer.style.display = "flex";
-          switchButton.innerText = "List";
-        }
-      };
+      const toggleView = () => {    
+      if (iframesContainer.classList.contains("grid-view")) {
+      iframesContainer.classList.remove("grid-view");
+      switchButton.innerText = "Grid";
+    } else {
+      iframesContainer.classList.add("grid-view");
+      switchButton.innerText = "List";
+    }
+  };
 
-      switchButton.addEventListener("click", toggleView);
+  switchButton.addEventListener("click", toggleView);
 
-      const sortedReferenceList = sortReferenceList(referenceList);
-
-      sortedReferenceList.forEach((siteUrl) => {
-        const siteTitle = extractSiteName(siteUrl);
-        const iframeWrapper = createIframeWrapper(siteUrl, siteTitle);
-        iframesContainer.appendChild(iframeWrapper);
-      });
-    </script>
-  </body>
+  sortReferenceList(referenceList).forEach((siteUrl) => {
+    const siteName = extractSiteName(siteUrl);
+    const iframeWrapper = createIframeWrapper(siteUrl, siteName);
+    iframesContainer.appendChild(iframeWrapper);
+  });
+</script>
+</body>
 </html>
