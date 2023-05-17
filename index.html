@@ -6,7 +6,7 @@
   <style>
     body {
       background-color: black;
-      margin: 20;
+      margin: 0;
       padding: 0;
       font-family: "Helvetica", sans-serif;
     }
@@ -28,17 +28,13 @@
   padding: 20px;
 }
 
+
     .iframe-wrapper {
       position: relative;
       width: calc(33.33% - 40px);
       height: 0;
       padding-bottom: 56.25%;
       overflow: hidden;
-    }
-
-    .iframe-wrapper.list-view {
-      padding-bottom: 0;
-      height: auto;
     }
 
     .iframe-wrapper > iframe {
@@ -63,29 +59,26 @@
       margin: 10px;
       font-size: 18px;
       font-weight: bold;
+      text-decoration: none;
+      color: white;
+      transition: text-decoration 0.3s;
+    }
+
+    .site-title:hover {
+      text-decoration: underline;
     }
 
     .switch-button {
       position: fixed;
       top: 10px;
       right: 10px;
-      background-color: white;
-      color: black;
+      background-color: blue;
+      color: white;
       padding: 10px 20px;
       border: none;
       border-radius: 5px;
       cursor: pointer;
       font-family: "Helvetica", sans-serif;
-    }
-
-    .list-view .iframe-wrapper {
-      width: 100%;
-      padding-bottom: 56.25%;
-    }
-
-    .list-view .iframe-wrapper iframe {
-      height: 0;
-      padding-bottom: 56.25%;
     }
   </style>
 </head>
@@ -225,24 +218,25 @@
       iframeWrapper.appendChild(iframe);
       const siteWrapper = document.createElement("div");
       siteWrapper.classList.add("site-wrapper");
-      const siteTitle = document.createElement("div");
+      const siteTitle = document.createElement("a");
       siteTitle.classList.add("site-title");
       siteTitle.innerText = title;
+      siteTitle.href = trimmedSiteUrl;
+      siteTitle.target = "_blank";
       siteWrapper.appendChild(siteTitle);
       iframeWrapper.appendChild(siteWrapper);
       return iframeWrapper;
     };
 
     const toggleView = () => {
-      if (iframesContainer.classList.contains("list-view")) {
-        iframesContainer.classList.remove("list-view");
-        switchButton.innerText = "List";
-      } else {
-        iframesContainer.classList.add("list-view");
+      if (iframesContainer.classList.contains("grid-view")) {
+        iframesContainer.classList.remove("grid-view");
         switchButton.innerText = "Grid";
+      } else {
+        iframesContainer.classList.add("grid-view");
+        switchButton.innerText = "List";
       }
     };
-
     switchButton.addEventListener("click", toggleView);
 
     const renderReferenceList = () => {
