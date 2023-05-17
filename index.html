@@ -1,75 +1,85 @@
 <!DOCTYPE html>
 <html>
-<head>
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+  <head>
+    <meta charset="UTF-8" />
+    <title>ROCOBOT</title>
+    <style>
+      body {
+        background-color: black;
+        margin: 0;
+        padding: 0;
+        font-family: "Helvetica", sans-serif;
+      }
 
-    body {
-      background-color: black;
-      color: white;
-      font-family: Helvetica, Arial, sans-serif;
-      margin: 0;
-      padding: 0;
-    }
+      h1,
+      button,
+      .site-title {
+        color: white;
+      }
 
-    .container {
-      display: flex;
-      justify-content: flex-end;
-      padding: 10px;
-    }
+      .container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 20px;
+        margin: 0 20px;
+      }
 
-    .button {
-      background-color: white;
-      color: black;
-      padding: 10px 20px;
-      border: none;
-      border-radius: 5px;
-      font-weight: bold;
-      cursor: pointer;
-    }
+      .iframe-wrapper {
+        width: 100%;
+        height: 0;
+        padding-bottom: 56.25%;
+        position: relative;
+      }
 
-    .iframes-container {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
-      gap: 20px;
-      margin: 10px;
-    }
+      .iframe-wrapper > iframe {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+      }
 
-    .iframe-wrapper {
-      position: relative;
-    }
+      .site-wrapper {
+        position: relative;
+        width: 100%;
+        height: auto;
+        text-align: left;
+      }
 
-    .iframe-wrapper iframe {
-      width: 100%;
-      height: 100%;
-      border: none;
-    }
+      .site-title {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        margin: 10px;
+        font-size: 18px;
+        font-weight: bold;
+      }
 
-    .site-name {
-      position: absolute;
-      bottom: 0;
-      right: 0;
-      background-color: rgba(0, 0, 0, 0.5);
-      padding: 5px 10px;
-      font-size: 14px;
-    }
-  </style>
-</head>
-<body>
-  <div class="container">
-    <button class="button" onclick="toggleView()">List</button>
-  </div>
+      .switch-button {
+        position: fixed;
+        top: 10px;
+        right: 10px;
+        background-color: white;
+        color: black;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-family: "Helvetica", sans-serif;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>ROCOBOT</h1>
+    <button class="switch-button">List</button>
+    <div class="container" id="iframes-container"></div>
 
-  <div class="iframes-container">
-    <!-- Les iframes seront ajoutées ici -->
-  </div>
+    <script>
+      const iframesContainer = document.getElementById("iframes-container");
+      const switchButton = document.querySelector(".switch-button");
 
-  <script>
-    const referenceList = [
+      const referenceList = [
  "https://unireso-studio.com/",
         "https://additivestudios.co.uk/",
         "https://www.dkft.fr/",
@@ -170,73 +180,64 @@
         "https://8apr.de/",
         "https://panoply.co.uk/",
         "https://www.dada-projects.com/",
-    ];
+      ];
 
-    const extractSiteName = (url) => {
-      const hostname = new URL(url).hostname;
-      return hostname.replace("www.", "");
-    };
+      const extractSiteName = (url) => {
+        const urlObj = new URL(url);
+        const hostname = urlObj.hostname.replace("www.", "");
+        return hostname;
+      };
 
-    const toggleView = () => {
-      const button = document.querySelector(".button");
-      const iframesContainer = document.querySelector(".iframes-container");
+      const sortReferenceList = (list) => {
+        return list.sort((a, b) => {
+          const siteNameA = extractSiteName(a);
+          const siteNameB = extractSiteName(b);
+          return siteNameA.localeCompare(siteNameB);
+        });
+      };
 
-      if (iframesContainer.classList.contains("list-view")) {
-        // Affichage en grille
-        iframesContainer.classList.remove("list-view");
-        button.textContent = "List";
+      const createIframeWrapper = (url, title) => {
+        const trimmedSiteUrl = url.trim();
+        const iframeWrapper = document.createElement("div");
+        iframeWrapper.classList.add("iframe-wrapper");
+        const iframe = document.createElement("iframe");
+        iframe.src = trimmedSiteUrl;
+        iframe.setAttribute("loading", "lazy");
+        iframeWrapper.appendChild(iframe);
+        const siteWrapper = document.createElement("div");
+        siteWrapper.classList.add("site-wrapper");
+        const siteTitle = document.createElement("div");
+        siteTitle.classList.add("site-title");
+        siteTitle.innerText = title;
+        siteWrapper.appendChild(siteTitle);
+        iframeWrapper.appendChild(siteWrapper);
+        return iframeWrapper;
+      };
 
-        // Supprimer les iframes existantes
+      const toggleView = () => {
+        if (iframesContainer.classList.contains("grid-view")) {
+          iframesContainer.classList.remove("grid-view");
+          switchButton.innerText = "List";
+        } else {
+          iframesContainer.classList.add("grid-view");
+          switchButton.innerText = "Grid";
+        }
+      };
+
+      switchButton.addEventListener("click", toggleView);
+
+      const renderReferenceList = () => {
+        const sortedList = sortReferenceList(referenceList);
         iframesContainer.innerHTML = "";
-
-        // Créer les nouvelles iframes en grille
-        referenceList.forEach((url) => {
-          const trimmedSiteUrl = url.trim();
-
-          const iframeWrapper = document.createElement("div");
-          iframeWrapper.classList.add("iframe-wrapper");
-          const iframe = document.createElement("iframe");
-          iframe.src = trimmedSiteUrl;
-          iframe.setAttribute("loading", "lazy");
-          iframeWrapper.appendChild(iframe);
-
-          const siteName = extractSiteName(url);
-          const siteNameElement = document.createElement("div");
-          siteNameElement.classList.add("site-name");
-          siteNameElement.textContent = siteName;
-
-          iframeWrapper.appendChild(siteNameElement);
+        sortedList.forEach((siteUrl) => {
+          const siteName = extractSiteName(siteUrl);
+          const iframeWrapper = createIframeWrapper(siteUrl, siteName);
           iframesContainer.appendChild(iframeWrapper);
         });
-      } else {
-        // Affichage en liste
-        iframesContainer.classList.add("list-view");
-        button.textContent = "Grid";
+      };
 
-        // Supprimer les iframes existantes
-        iframesContainer.innerHTML = "";
-
-        // Créer les nouvelles iframes en liste
-        referenceList.forEach((url) => {
-          const trimmedSiteUrl = url.trim();
-
-          const iframeWrapper = document.createElement("div");
-          iframeWrapper.classList.add("iframe-wrapper");
-          const iframe = document.createElement("iframe");
-          iframe.src = trimmedSiteUrl;
-          iframe.setAttribute("loading", "lazy");
-          iframeWrapper.appendChild(iframe);
-
-          const siteName = extractSiteName(url);
-          const siteNameElement = document.createElement("div");
-          siteNameElement.classList.add("site-name");
-          siteNameElement.textContent = siteName;
-
-          iframeWrapper.appendChild(siteNameElement);
-          iframesContainer.appendChild(iframeWrapper);
-        });
-      }
-    };
-  </script>
-</body>
+      renderReferenceList();
+      window.addEventListener("resize", renderReferenceList);
+    </script>
+  </body>
 </html>
