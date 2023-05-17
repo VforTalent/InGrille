@@ -7,15 +7,13 @@
       body {
         background-color: black;
         margin: 0;
-        display: flex;
-        justify-content: center;
+        padding: 0;
         font-family: "Helvetica", sans-serif;
       }
 
       h1,
       button,
       .site-title {
-        font-family: "Helvetica", sans-serif;
         color: white;
       }
 
@@ -24,15 +22,19 @@
         flex-wrap: wrap;
         justify-content: center;
         gap: 20px;
-        padding: 100px;
+        margin: 0 auto;
+        max-width: 1920px;
+        padding: 20px;
       }
+
       .iframe-wrapper {
         position: relative;
-        width: 100%;
+        width: calc(33.33% - 40px);
         height: 0;
-        padding-bottom: 56.25%; /* 16:9 aspect ratio */
+        padding-bottom: 56.25%;
         overflow: hidden;
       }
+
       .iframe-wrapper > iframe {
         position: absolute;
         top: 0;
@@ -40,11 +42,14 @@
         width: 100%;
         height: 100%;
       }
+
       .site-wrapper {
         position: relative;
         width: 100%;
         height: auto;
+        text-align: left;
       }
+
       .site-title {
         position: absolute;
         bottom: 0;
@@ -53,22 +58,24 @@
         font-size: 18px;
         font-weight: bold;
       }
+
       .switch-button {
         position: fixed;
         top: 10px;
-        left: 10px;
+        right: 10px;
         background-color: blue;
         color: white;
         padding: 10px 20px;
         border: none;
         border-radius: 5px;
         cursor: pointer;
+        font-family: "Helvetica", sans-serif;
       }
     </style>
   </head>
   <body>
     <h1>ROCOBOT</h1>
-    <button class="switch-button">Grid</button>
+    <button class="switch-button">List</button>
     <div class="container" id="iframes-container"></div>
 
     <script>
@@ -76,7 +83,8 @@
       const switchButton = document.querySelector(".switch-button");
 
       const referenceList = [
-   "https://wwww.vforstudio.com/",
+ "https://unireso-studio.com/",
+        "https://additivestudios.co.uk/",
         "https://www.dkft.fr/",
         "http://www.mecanique-g.com/",
         "https://www.lightfield.london/",
@@ -119,13 +127,9 @@
         "https://lecube.tv/",
         "https://www.les-monstres.com/",
         "https://media.work/",
-        "https://studiotaktil.com/",
         "https://www.unit.tv/",
-        "https://www.rawandrendered.com/",
         "https://www.altcinc.com/",
         "https://onesal.com/",
-        "https://spotstudio.es/",
-        "https://www.studioprivate.co.uk/",
         "https://www.studioriver.fr/",
         "https://newformat.io/",
         "https://www.monarch.tv/",
@@ -134,7 +138,6 @@
         "https://www.manor.studio/",
         "https://www.studioprivate.co.uk/",
         "https://www.replica.works/",
-        "https://www.vforstudio.com/",
         "https://mvsm.com/",
         "https://www.trizz.tv/",
         "https://sixnfive.com/",
@@ -144,24 +147,18 @@
         "https://abra.network/",
         "https://yambo-studio.com/",
         "https://wangsoderstrom.com/",
-        "https://nexusstudios.com/",
         "https://www.tomorrowbureau.io/",
         "https://studiotaktil.com/",
         "https://www.tactyc.studio/",
         "https://www.daydreamervfx.com/",
         "https://www.rawandrendered.com/",
-        "https://onesal.com/",
         "https://www.firm-studio.fr/",
         "https://spotstudio.es/",
         "https://www.bluenode.paris/",
-        "https://www.studioriver.fr/",
-        "https://newformat.io/",
         "https://frame.dk/",
         "https://serialcut.com/",
         "https://www.bureauklausalman.com/",
-        "https://ditroit.it/",
         "https://thescope.studio/",
-        "https://www.found-studio.com/",
         "https://www.alreadybeenchewed.tv/",
         "https://analogstudio.co.uk/",
         "https://untoldstudios.tv/",
@@ -170,16 +167,22 @@
         "https://zeitguised.com/",
         "https://fyihenriksson.com/",
         "https://sehsucht.de/",
-        "https://www.digital-district.fr/",
         "https://www.rfvisuals.com/",
-        "https://naive.se/",
         "https://www.time-based-arts.com/",
         "https://blinkink.co.uk/our-work/",
-        "https://www.psyop.com/",
         "https://heycarbon.com/",
         "https://www.mimicproductions.com/",
-        "https://nexusstudios.com/",
         "http://www.mikrosimage.com/",
+        "https://www.jsragency.com/artists",
+        "https://friendselectric.tv/",
+        "https://mainframe.co.uk/",
+        "https://www.protoeditions.co/projects",
+        "https://www.arsthanea.com/",
+        "https://imaginaryforces.com/",
+        "https://trauminc.com/",
+        "https://8apr.de/",
+        "https://panoply.co.uk/",
+        "https://www.dada-projects.com/",
       ];
 
       const extractSiteName = (url) => {
@@ -214,23 +217,29 @@
         return iframeWrapper;
       };
 
-      const toggleView = () => {    
-      if (iframesContainer.classList.contains("grid-view")) {
-      iframesContainer.classList.remove("grid-view");
-      switchButton.innerText = "Grid";
-    } else {
-      iframesContainer.classList.add("grid-view");
-      switchButton.innerText = "List";
-    }
+      const toggleView = () => {
+        if (iframesContainer.classList.contains("grid-view")) {
+          iframesContainer.classList.remove("grid-view");
+switchButton.innerText = "Grid";
+} else {
+iframesContainer.classList.add("grid-view");
+switchButton.innerText = "List";
+}
+};
+        switchButton.addEventListener("click", toggleView);
+
+  const renderReferenceList = () => {
+    const sortedList = sortReferenceList(referenceList);
+    iframesContainer.innerHTML = "";
+    sortedList.forEach((siteUrl) => {
+      const siteName = extractSiteName(siteUrl);
+      const iframeWrapper = createIframeWrapper(siteUrl, siteName);
+      iframesContainer.appendChild(iframeWrapper);
+    });
   };
 
-  switchButton.addEventListener("click", toggleView);
-
-  sortReferenceList(referenceList).forEach((siteUrl) => {
-    const siteName = extractSiteName(siteUrl);
-    const iframeWrapper = createIframeWrapper(siteUrl, siteName);
-    iframesContainer.appendChild(iframeWrapper);
-  });
+  renderReferenceList();
+  window.addEventListener("resize", renderReferenceList);
 </script>
-</body>
+  </body>
 </html>
