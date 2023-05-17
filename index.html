@@ -2,70 +2,88 @@
 <html>
   <head>
     <meta charset="UTF-8" />
-    <title>ROCOBOT</title>
+    <title>Instagram-like Grid</title>
     <style>
       body {
-        background-color: black;
         margin: 0;
-        display: flex;
-        justify-content: center;
+        padding: 0;
+        background-color: black;
+        color: white;
       }
+
       .container {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: center;
-        gap: 20px;
-        padding: 100px;
+        margin: 0 100px;
       }
+
+      #iframes-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+        gap: 20px;
+      }
+
       .iframe-wrapper {
         position: relative;
-        width: 100%;
         height: 0;
         padding-bottom: 56.25%; /* 16:9 aspect ratio */
         overflow: hidden;
       }
+
       .iframe-wrapper > iframe {
         position: absolute;
         top: 0;
         left: 0;
         width: 100%;
         height: 100%;
+        max-width: 1920px;
+        max-height: 1280px;
       }
-      .site-wrapper {
-        position: relative;
-        width: 100%;
-        height: auto;
-      }
-      .site-title {
+
+      .iframe-wrapper::after {
+        content: attr(data-url);
         position: absolute;
         bottom: 0;
-        left: 0;
-        margin: 10px;
-        color: white;
-        font-size: 18px;
+        right: 0;
+        padding: 10px;
+        font-size: 16px;
         font-weight: bold;
+        color: white;
+        background-color: rgba(0, 0, 0, 0.7);
+        z-index: 1;
+        box-sizing: border-box;
       }
+
       .switch-button {
         position: fixed;
         top: 10px;
-        left: 10px;
+        right: 10px;
         background-color: blue;
         color: white;
         padding: 10px 20px;
         border: none;
         border-radius: 5px;
+        font-size: 16px;
         cursor: pointer;
+      }
+
+      .switch-button:hover {
+        background-color: darkblue;
+      }
+
+      .switch-button:focus {
+        outline: none;
       }
     </style>
   </head>
   <body>
-    <h1 style="color: white;">ROCOBOT</h1>
-    <button class="switch-button">Grid</button>
-    <div class="container" id="iframes-container"></div>
-
+    <div class="container">
+      <h1>Instagram-like Grid</h1>
+      <div id="iframes-container"></div>
+      <button class="switch-button" id="switchButton">Grid</button>
+    </div>
     <script>
       const iframesContainer = document.getElementById("iframes-container");
-      const switchButton = document.querySelector(".switch-button");
+      const switchButton = document.getElementById("switchButton");
+      let isGrid = true;
 
       const referenceList = [
  "https://unireso-studio.com/",
@@ -170,55 +188,43 @@
         "https://www.dada-projects.com/",
       ];
 
-      const extractSiteName = (url) => {
-        const urlObj = new URL(url);
-        const hostname = urlObj.hostname.replace("www.", "");
-        return hostname;
-      };
-
-      const sortReferenceList = (list) => {
-        return list.sort((a, b) => {
-          const siteNameA = extractSiteName(a);
-          const siteNameB = extractSiteName(b);
-          return siteNameA.localeCompare(siteNameB);
-        });
-      };
-
-      const createIframeWrapper = (url, title) => {
-        const trimmedSiteUrl = url.trim();
+      referenceList.forEach((siteUrl) => {
+        const trimmedSiteUrl = siteUrl.trim();
         const iframeWrapper = document.createElement("div");
         iframeWrapper.classList.add("iframe-wrapper");
         const iframe = document.createElement("iframe");
         iframe.src = trimmedSiteUrl;
         iframe.setAttribute("loading", "lazy");
         iframeWrapper.appendChild(iframe);
-        const siteWrapper = document.createElement("div");
-        siteWrapper.classList.add("site-wrapper");
-        const siteTitle = document.createElement("div");
-        siteTitle.classList.add("site-title");
-        siteTitle.innerText = title;
-        siteWrapper.appendChild(siteTitle);
-        iframeWrapper.appendChild(siteWrapper);
-        return iframeWrapper;
-      };
 
-      const toggleView = () => {
-        if (iframesContainer.classList.contains("grid-view")) {
-          iframesContainer.classList.remove("grid-view");
-          switchButton.innerText = "Grid";
-        } else {
-          iframesContainer.classList.add("grid-view");
-          switchButton.innerText = "List";
-        }
-      };
+        const siteName = extractSiteName(siteUrl);
+        const siteNameLabel = document.createElement("span");
+        siteNameLabel.classList.add("site-name");
+        siteNameLabel.textContent = siteName;
+        iframeWrapper.appendChild(siteNameLabel);
+
+        iframesContainer.appendChild(iframeWrapper);
+      });
+
+      function extractSiteName(url) {
+        // Function to extract site name from URL
+      }
 
       switchButton.addEventListener("click", toggleView);
 
-      sortReferenceList(referenceList).forEach((siteUrl) => {
-        const siteName = extractSiteName(siteUrl);
-        const iframeWrapper = createIframeWrapper(siteUrl, siteName);
-        iframesContainer.appendChild(iframeWrapper);
-      });
+      function toggleView() {
+        if (isGrid) {
+          iframesContainer.style.display = "block";
+          iframesContainer.style.gridTemplateColumns = "1fr";
+          switchButton.textContent = "List";
+          isGrid = false;
+        } else {
+          iframesContainer.style.display = "grid";
+          iframesContainer.style.gridTemplateColumns = "repeat(auto-fit, minmax(500px, 1fr))";
+          switchButton.textContent = "Grid";
+          isGrid = true;
+        }
+      }
     </script>
   </body>
 </html>
