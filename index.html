@@ -6,24 +6,35 @@
     <style>
       body {
         background-color: black;
-        margin: 10px;
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: space-between;
+        margin: 0;
+        padding: 0;
+        font-family: "Helvetica", sans-serif;
       }
-      #iframes-container {
-        width: calc(100% - 220px);
+
+      h1,
+      button,
+      .site-title {
+        color: white;
+      }
+
+      .container {
         display: flex;
         flex-wrap: wrap;
+        justify-content: center;
         gap: 20px;
+        margin: 0 auto;
+        max-width: 1920px;
+        padding: 20px;
       }
+
       .iframe-wrapper {
         position: relative;
-        width: 100%;
+        width: calc(33.33% - 40px);
         height: 0;
-        padding-bottom: 56.25%; /* 16:9 aspect ratio */
+        padding-bottom: 56.25%;
         overflow: hidden;
       }
+
       .iframe-wrapper > iframe {
         position: absolute;
         top: 0;
@@ -31,28 +42,41 @@
         width: 100%;
         height: 100%;
       }
+
+      .site-wrapper {
+        position: relative;
+        width: 100%;
+        height: auto;
+        text-align: left;
+      }
+
       .site-title {
         position: absolute;
-        bottom: 10px;
-        left: 10px;
-        color: white;
-        font-size: 16px;
+        bottom: 0;
+        left: 0;
+        margin: 10px;
+        font-size: 18px;
+        font-weight: bold;
       }
+
       .switch-button {
+        position: fixed;
+        top: 10px;
+        right: 10px;
         background-color: blue;
         color: white;
         padding: 10px 20px;
         border: none;
         border-radius: 5px;
-        margin-top: 10px;
         cursor: pointer;
+        font-family: "Helvetica", sans-serif;
       }
     </style>
   </head>
   <body>
-    <h1 style="color: white;">ROCOBOT</h1>
-    <div id="iframes-container"></div>
+    <h1>ROCOBOT</h1>
     <button class="switch-button">List</button>
+    <div class="container" id="iframes-container"></div>
 
     <script>
       const iframesContainer = document.getElementById("iframes-container");
@@ -183,32 +207,39 @@
         iframe.src = trimmedSiteUrl;
         iframe.setAttribute("loading", "lazy");
         iframeWrapper.appendChild(iframe);
+        const siteWrapper = document.createElement("div");
+        siteWrapper.classList.add("site-wrapper");
         const siteTitle = document.createElement("div");
         siteTitle.classList.add("site-title");
         siteTitle.innerText = title;
-        iframeWrapper.appendChild(siteTitle);
+        siteWrapper.appendChild(siteTitle);
+        iframeWrapper.appendChild(siteWrapper);
         return iframeWrapper;
       };
 
       const toggleView = () => {
-        if (iframesContainer.style.display === "flex") {
-          iframesContainer.style.display = "block";
-          switchButton.innerText = "Grid";
-        } else {
-          iframesContainer.style.display = "flex";
-          switchButton.innerText = "List";
-        }
-      };
+        if (iframesContainer.classList.contains("grid-view")) {
+          iframesContainer.classList.remove("grid-view");
+switchButton.innerText = "Grid";
+} else {
+iframesContainer.classList.add("grid-view");
+switchButton.innerText = "List";
+}
+};
+        switchButton.addEventListener("click", toggleView);
 
-      switchButton.addEventListener("click", toggleView);
+  const renderReferenceList = () => {
+    const sortedList = sortReferenceList(referenceList);
+    iframesContainer.innerHTML = "";
+    sortedList.forEach((siteUrl) => {
+      const siteName = extractSiteName(siteUrl);
+      const iframeWrapper = createIframeWrapper(siteUrl, siteName);
+      iframesContainer.appendChild(iframeWrapper);
+    });
+  };
 
-      const sortedReferenceList = sortReferenceList(referenceList);
-
-      sortedReferenceList.forEach((siteUrl) => {
-        const siteTitle = extractSiteName(siteUrl);
-        const iframeWrapper = createIframeWrapper(siteUrl, siteTitle);
-        iframesContainer.appendChild(iframeWrapper);
-      });
-    </script>
+  renderReferenceList();
+  window.addEventListener("resize", renderReferenceList);
+</script>
   </body>
 </html>
