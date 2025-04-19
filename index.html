@@ -283,7 +283,16 @@
             item.textContent = extractHostname(url);
           }
           item.style.cursor = "pointer";
-          item.onclick = () => showPreview(url);
+          item.onclick = () => {
+            const allItems = document.querySelectorAll('#siteList li');
+            allItems.forEach(i => {
+              i.style.backgroundColor = '';
+              i.style.textDecoration = 'none';
+            });
+            item.style.backgroundColor = 'yellow';
+            item.style.textDecoration = 'line-through';
+            showPreview(url);
+          };
           siteList.appendChild(item);
         }
       }
