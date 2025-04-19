@@ -134,50 +134,21 @@
       fill: none;
       stroke-width: 2;
     }
-  </style>
+  .loading {
+  font-style: italic;
+  font-size: 0.9rem;
+  color: #aaa;
+  padding: 0.5rem;
+  text-align: center;
+  animation: pulse 1.5s infinite;
+}
+@keyframes pulse {
+  0% { opacity: 0.5; }
+  50% { opacity: 1; }
+  100% { opacity: 0.5; }
+}
+</style>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-<script>
-async function getBehanceWebsiteUrl(profileUrl) {
-  try {
-    const username = profileUrl.split("behance.net/")[1].replace(/\/$/, '');
-    const proxyUrl = `https://api.allorigins.win/raw?url=https://www.behance.net/${username}`;
-    const res = await fetch(proxyUrl);
-    const html = await res.text();
-    const doc = new DOMParser().parseFromString(html, 'text/html');
-    const links = Array.from(doc.querySelectorAll('a'));
-    const websiteLink = links.find(a => a.href && !a.href.includes('behance.net') && !a.href.includes('adobe.com'));
-
-    const nameElement = doc.querySelector('meta[property="og:title"]') || doc.querySelector('title');
-    const name = nameElement ? nameElement.content || nameElement.innerText : null;
-
-    return { website: websiteLink?.href || null, name };
-  } catch (e) {
-    console.error('Behance lookup failed for', profileUrl, e);
-    return { website: null, name: null };
-  }
-}
-</script>
-
-
-<script>
-async function getInstagramProfileName(profileUrl) {
-  try {
-    const username = profileUrl.split("instagram.com/")[1].replace(/\/$/, '');
-    const proxyUrl = `https://api.allorigins.win/raw?url=https://www.instagram.com/${username}/`;
-    const res = await fetch(proxyUrl);
-    const html = await res.text();
-    const doc = new DOMParser().parseFromString(html, 'text/html');
-
-    const nameElement = doc.querySelector('meta[property="og:title"]') || doc.querySelector('title');
-    const name = nameElement ? nameElement.content || nameElement.innerText : null;
-
-    return { name };
-  } catch (e) {
-    console.error('Instagram lookup failed for', profileUrl, e);
-    return { name: null };
-  }
-}
-</script>
 </head>
 <body>
   <div class="sidebar">
@@ -189,168 +160,156 @@ async function getInstagramProfileName(profileUrl) {
     <h2 id="sidebarTitle">Sites</h2>
     <ul id="siteList"></ul>
   </div>
-
   <div class="controls">
     <button id="btnStudios" onclick="switchTo('studios')">Studios</button>
     <button id="btnArtistes" onclick="switchTo('artistes')">Talents</button>
   </div>
   <div class="grid" id="feed"></div>
-
-  <div id="previewModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background-color:rgba(0,0,0,0.8); z-index:1000; justify-content:center; align-items:center;">
-    <div style="position:relative; width:90%; height:90%; background:#fff; border-radius:8px; overflow:hidden;">
-      <button id="closePreviewBtn" onclick="closePreview()" style="background:#fff; color:#111; border:none; padding:6px 12px; border-radius:4px; cursor:pointer; text-decoration: line-through; background-color: yellow;">Fermer</button>
-      <iframe id="previewFrame" src="" style="width:100%; height:100%; border:none;"></iframe>
-    </div>
-  </div>
 <script>
-let studioLinks = [];
-let artistesLinks = [];
+const cacheBehance = new Map();
 
-function extractHostname(url) {
-  try {
-    return new URL(url).hostname.replace(/^www\./, '').replace(/^http:\/\//, '').replace(/^https:\/\//, '').split('/')[0];
-  } catch (e) {
-    return url;
+async function createLabel(url) {
+  let labelText = new URL(url).hostname.replace('www.', '');
+  if (url.includes('behance.net')) {
+    const info = await getBehanceWebsiteUrl(url);
+    labelText = info.name;
+  } else if (url.includes('instagram.com')) {
+    const info = await getInstagramProfileName(url);
+    labelText = info.name;
   }
+  return labelText;
 }
 
-async function createCard(url, displayName) {
-  const div = document.createElement("div");
-  div.className = "profile";
-
-  const label = document.createElement("a");
-  label.className = "site-label";
-  label.href = url;
-  label.target = "_blank";
-
-  label.textContent = displayName;
-
-  if (url.includes("instagram.com")) {
-    const fallback = document.createElement("img");
-    fallback.className = "fallback";
-    fallback.src = `https://in-grille-screenshot.onrender.com/screenshot?url=${encodeURIComponent(url)}`;
-    fallback.alt = extractHostname(url);
-    fallback.style.objectFit = 'cover';
-    fallback.style.width = '100%';
-    fallback.style.height = '630px';
-    div.appendChild(fallback);
-    div.appendChild(label);
-    return div;
-  }
-
-  const iframe = document.createElement("iframe");
-  iframe.src = url;
-  iframe.loading = "lazy";
-
-  iframe.onerror = () => {
-    iframe.remove();
-    const fallback = document.createElement("img");
-    fallback.className = "fallback";
-    fallback.src = `https://in-grille-screenshot.onrender.com/screenshot?url=${encodeURIComponent(url)}`;
-    fallback.alt = extractHostname(url);
-    fallback.style.objectFit = 'cover';
-    fallback.style.width = '100%';
-    fallback.style.height = '630px';
-    div.appendChild(fallback);
-    div.appendChild(label);
-  };
-
-  div.appendChild(iframe);
-  div.appendChild(label);
-  return div;
-}
-
-function showPreview(url) {
-  const modal = document.getElementById("previewModal");
-  const frame = document.getElementById("previewFrame");
-  frame.src = url;
-  modal.style.display = "flex";
-
-  setTimeout(() => {
-    window.addEventListener("click", handleOutsideClick);
-  }, 0);
-
-  function handleOutsideClick(e) {
-    if (!modal.contains(e.target) || e.target === modal) {
-      closePreview();
-      window.removeEventListener("click", handleOutsideClick);
-    }
-  }
-}
-
-function closePreview() {
-  const modal = document.getElementById("previewModal");
-  const frame = document.getElementById("previewFrame");
-  frame.src = "";
-  modal.style.display = "none";
-}
-
-async function loadGrid(list = studioLinks) {
+async function loadGrid(list) {
   const container = document.getElementById("feed");
   const siteList = document.getElementById("siteList");
-  container.innerHTML = "";
-  if (siteList) siteList.innerHTML = "";
+  container.innerHTML = '<div class="loading">Chargement en cours...</div>';
+  siteList.innerHTML = '';
 
-  const getDisplayLabel = (url) => extractHostname(url);
+  const sorted = [...list].sort((a, b) => new URL(a).hostname.localeCompare(new URL(b).hostname));
 
-  const sorted = [...list].sort((a, b) => extractHostname(a).localeCompare(extractHostname(b)));
-  await Promise.all(sorted.map(async url => {
-    let finalUrl = url;
-    let displayName = extractHostname(url);
-    if (url.includes("behance.net")) {
-      const behanceData = await getBehanceWebsiteUrl(url);
-      finalUrl = behanceData.website || url;
-      displayName = behanceData.name || extractHostname(url);
-    } else if (url.includes("instagram.com")) {
-      const instaData = await getInstagramProfileName(url);
-      displayName = instaData.name || extractHostname(url);
+  container.innerHTML = '';
+  for (const url of sorted) {
+    const div = document.createElement("div");
+    div.className = "profile";
+
+    const label = document.createElement("a");
+    label.className = "site-label";
+    label.href = url;
+    label.target = "_blank";
+    label.textContent = "Chargement...";
+    label.classList.add("loading");
+    const resolvedLabel = await createLabel(url);
+    label.textContent = resolvedLabel;
+    label.classList.remove("loading");
+
+    const iframe = document.createElement("iframe");
+    let displayUrl = url;
+    if (url.includes('behance.net')) {
+      const info = await getBehanceWebsiteUrl(url);
+      displayUrl = info.website || url;
+    } else if (url.includes('instagram.com')) {
+      const info = await getInstagramProfileName(url);
+      if (info.website) displayUrl = info.website;
     }
-    const card = await createCard(finalUrl, displayName);
-    container.appendChild(card);
+    iframe.src = displayUrl;
+    iframe.loading = "lazy";
+    iframe.onerror = () => {
+      iframe.remove();
+      const fallback = document.createElement("img");
+      fallback.className = "fallback";
+      fallback.src = `https://in-grille-screenshot.onrender.com/screenshot?url=${encodeURIComponent(url)}`;
+      fallback.alt = label.textContent;
+      fallback.style.objectFit = 'cover';
+      fallback.style.width = '100%';
+      fallback.style.height = '630px';
+      div.appendChild(fallback);
+      div.appendChild(label);
+    };
 
-    
-  }));
+    div.appendChild(iframe);
+    div.appendChild(label);
+    container.appendChild(div);
 
-    if (siteList) {
-      const item = document.createElement("li");
-      item.textContent = displayName;
-      item.style.cursor = "pointer";
-      item.onclick = () => {
-        showPreview(finalUrl);
-  const allItems = document.querySelectorAll('#siteList li');
-  allItems.forEach(i => {
-    i.style.backgroundColor = '';
-    i.style.textDecoration = 'none';
-  });
-  item.style.backgroundColor = 'yellow';
-  item.style.textDecoration = 'line-through';
-};
-      siteList.appendChild(item);
-    }
+    const item = document.createElement("li");
+    item.className = "loading";
+    item.textContent = "Chargement...";
+    const updateLabel = await createLabel(url);
+    item.classList.remove("loading");
+    item.textContent = updateLabel;
+    item.style.cursor = "pointer";
+    item.onclick = () => {
+      const modal = document.getElementById("previewModal");
+      const frame = document.getElementById("previewFrame");
+      frame.src = url;
+      modal.style.display = "flex";
+    };
+    siteList.appendChild(item);
   }
 }
+
+
+async function getBehanceWebsiteUrl(profileUrl) {
+  if (cacheBehance.has(profileUrl)) return cacheBehance.get(profileUrl);
+  try {
+    const username = profileUrl.split("behance.net/")[1].replace(/\/$/, '');
+    const proxyUrl = `https://api.allorigins.win/raw?url=https://www.behance.net/${username}`;
+    const res = await fetch(proxyUrl);
+    const html = await res.text();
+    const doc = new DOMParser().parseFromString(html, 'text/html');
+    const links = Array.from(doc.querySelectorAll('a'));
+    const websiteLink = links.find(a => a.href && !a.href.includes('behance.net') && !a.href.includes('adobe.com'));
+    const nameElement = doc.querySelector('meta[property="og:title"]') || doc.querySelector('title');
+    const name = nameElement ? nameElement.content || nameElement.innerText : null;
+    const result = { website: websiteLink?.href || profileUrl, name: name || username };
+    cacheBehance.set(profileUrl, result);
+    return result;
+  } catch (e) {
+    console.error('Behance lookup failed for', profileUrl, e);
+    return { website: profileUrl, name: profileUrl };
+  }
+}
+
+async function getInstagramProfileName(profileUrl) {
+  if (cacheInstagram.has(profileUrl)) return cacheInstagram.get(profileUrl);
+  try {
+    const username = profileUrl.split("instagram.com/")[1].replace(/\/$/, '');
+    const proxyUrl = `https://api.allorigins.win/raw?url=https://www.instagram.com/${username}`;
+    const res = await fetch(proxyUrl);
+    const html = await res.text();
+    const doc = new DOMParser().parseFromString(html, 'text/html');
+    const nameElement = doc.querySelector('meta[property="og:title"]') || doc.querySelector('title');
+    const name = nameElement ? nameElement.content || nameElement.innerText : username;
+    const links = Array.from(doc.querySelectorAll('a'));
+    const websiteLink = links.find(a => a.href && !a.href.includes('instagram.com') && !a.href.includes('facebook.com'));
+    const result = { name, website: websiteLink?.href || null };
+    cacheInstagram.set(profileUrl, result);
+    return result;
+  } catch (e) {
+    console.error('Instagram lookup failed for', profileUrl, e);
+    return { name: profileUrl };
+  }
+}
+// Initialisation des caches
+const cacheInstagram = new Map();
+let studioLinks = [];
+let artistesLinks = [];
 
 function switchTo(type) {
   document.getElementById("btnStudios").style.backgroundColor = "#fff";
   document.getElementById("btnArtistes").style.backgroundColor = "#fff";
   document.getElementById("btnStudios").style.textDecoration = "none";
   document.getElementById("btnArtistes").style.textDecoration = "none";
-document.getElementById("btnArtistes").textContent = "Talents";
 
   if (type === 'studios') {
     document.getElementById("btnStudios").style.backgroundColor = "yellow";
     document.getElementById("btnStudios").style.textDecoration = "line-through";
+    document.getElementById("sidebarTitle").textContent = "Liste des studios";
+    loadGrid(studioLinks);
   } else if (type === 'artistes') {
     document.getElementById("btnArtistes").style.backgroundColor = "yellow";
     document.getElementById("btnArtistes").style.textDecoration = "line-through";
-  }
-
-  const sidebarTitle = document.getElementById("sidebarTitle");
-  if (type === 'studios') {
-    if (sidebarTitle) sidebarTitle.textContent = "Liste des studios";
-    loadGrid(studioLinks);
-  } else if (type === 'artistes') {
-    if (sidebarTitle) sidebarTitle.textContent = "Liste des talents";
+    document.getElementById("sidebarTitle").textContent = "Liste des talents";
     loadGrid(artistesLinks);
   }
 }
@@ -361,24 +320,55 @@ async function fetchExcel(fileUrl) {
   const data = await blob.arrayBuffer();
   const workbook = XLSX.read(data, { type: 'array' });
 
+  if (!workbook.SheetNames || workbook.SheetNames.length < 2) {
+    console.error("Erreur: le fichier Excel ne contient pas les deux feuilles attendues.");
+    return;
+  }
+
   const sheetStudios = workbook.Sheets[workbook.SheetNames[0]];
   const jsonStudios = XLSX.utils.sheet_to_json(sheetStudios, { header: 1 });
+  if (!jsonStudios[0] || typeof jsonStudios[0][0] === 'undefined') {
+    console.error("Erreur: la colonne attendue pour les studios est manquante.");
+    return;
+  }
   studioLinks = jsonStudios.slice(1)
     .map(row => row[0] ? String(row[0]).trim() : null)
     .filter(Boolean);
 
   const sheetArtistes = workbook.Sheets[workbook.SheetNames[1]];
   const jsonArtistes = XLSX.utils.sheet_to_json(sheetArtistes, { header: 1 });
-  
-
+  if (!jsonArtistes[0] || typeof jsonArtistes[0][0] === 'undefined') {
+    console.error("Erreur: la colonne attendue pour les talents est manquante.");
+    return;
+  }
   artistesLinks = jsonArtistes.slice(1)
     .map(row => row[0] ? String(row[0]).trim() : null)
     .filter(Boolean);
 
-  loadGrid(studioLinks);
+  await loadGrid(studioLinks);
 }
 
-window.onload = () => fetchExcel('./data/LISTING_NETTOYE.xlsx');
+</script>
+
+<script>
+window.addEventListener('DOMContentLoaded', () => {
+  fetchExcel('./data/LISTING_GRAPHISTES_ET_STUDIOS.xlsx');
+});
+</script>
+<div id="previewModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background-color:rgba(0,0,0,0.8); z-index:1000; justify-content:center; align-items:center;">
+  <div style="position:relative; width:90%; height:90%; background:#fff; border-radius:8px; overflow:hidden;">
+    <button id="closePreviewBtn" onclick="closePreview()" style="background:#fff; color:#111; border:none; padding:6px 12px; border-radius:4px; cursor:pointer; text-decoration: line-through; background-color: yellow; position:absolute; top:10px; right:10px;">Fermer</button>
+    <iframe id="previewFrame" src="" style="width:100%; height:100%; border:none;"></iframe>
+  </div>
+</div>
+
+<script>
+function closePreview() {
+  const modal = document.getElementById("previewModal");
+  const frame = document.getElementById("previewFrame");
+  frame.src = "";
+  modal.style.display = "none";
+}
 </script>
 </body>
 </html>
