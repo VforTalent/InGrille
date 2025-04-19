@@ -12,7 +12,7 @@
       margin: 0;
       padding: 0;
       background-color: #fff;
-      color: #111;
+      color: #111; font-weight: 500;
     }
     .controls {
       position: sticky;
@@ -73,7 +73,7 @@
       position: absolute;
       bottom: 12px;
       left: 12px;
-      background: rgba(0, 0, 0, 0.7);
+      background: #fff;
       padding: 6px 12px;
       border-radius: 999px;
       font-size: 0.85rem;
@@ -133,6 +133,7 @@
       margin-bottom: 1rem;
     }
     .sidebar-icon svg {
+      min-width: 24px;
       width: 24px;
       height: 24px;
       stroke: #111;
@@ -149,7 +150,7 @@
         <path d="M3 9.5L12 3l9 6.5v11a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1v-11z" />
       </svg>
     </div>
-    <h2>Sites</h2>
+    <h2 id="sidebarTitle">Sites</h2>
     <ul id="siteList"></ul>
   </div>
 
@@ -275,8 +276,13 @@
     }
 
     function switchTo(type) {
+  const sidebarTitle = document.getElementById("sidebarTitle");
   if (type === 'studios') {
+    if (sidebarTitle) sidebarTitle.textContent = "Liste des studios";
     loadGrid(studioLinks);
+  } else if (type === 'artistes') {
+    if (sidebarTitle) sidebarTitle.textContent = "Liste des talents";
+    loadGrid(artistesLinks);
   } else if (type === 'artistes') {
     loadGrid(artistesLinks);
   }
