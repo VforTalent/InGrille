@@ -4,7 +4,6 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>InGrille - Studio Pages</title>
-  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <style>
     body {
       font-family: sans-serif;
@@ -44,47 +43,99 @@
       border-radius: 12px;
       box-shadow: 0 4px 10px rgba(0,0,0,0.1);
     }
-    .list .grid {
+    .fallback {
       display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 300px;
+      font-size: 3rem;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
       flex-direction: column;
+    }
+    .fallback a {
+      font-size: 0.9rem;
+      margin-top: 10px;
+      text-decoration: none;
+      color: #333;
     }
   </style>
 </head>
 <body>
   <div class="controls">
-    <button onclick="toggleView('grid')">Grille</button>
-    <button onclick="toggleView('list')">Liste</button>
+    <button onclick="loadGrid()">Charger</button>
   </div>
   <div class="grid" id="feed"></div>
 
   <script>
-    function toggleView(view) {
-      document.body.className = view;
+    const studioLinks = [
+      "http://markdearman.com",
+      "http://17mars.com",
+      "http://ariweinkle.com/",
+      "http://capsule.studio/about/",
+      "http://demo.shtl.org/",
+      "http://excusemyfrenchvfx.com/",
+      "http://no130.io/maison-francis-kurkdjian-gentle-fluidity/",
+      "http://noid-studio.com",
+      "http://nozon.com/Contact",
+      "http://ravages.tv/"
+    ];
+
+    function createIframeOrFallback(url) {
+      const div = document.createElement("div");
+      div.className = "profile";
+
+      const iframe = document.createElement("iframe");
+      iframe.src = url;
+      iframe.loading = "lazy";
+      iframe.onerror = () => {
+        div.innerHTML = `
+          <div class="fallback">
+            👁️‍🗨️<br>
+            <a href="${url}" target="_blank">Voir le site</a>
+          </div>
+        `;
+      };
+
+      iframe.onload = () => {
+        setTimeout(() => {
+          try {
+            const test = iframe.contentDocument || iframe.contentWindow.document;
+            if (!test || test.body.innerHTML.length < 10) throw new Error();
+          } catch (e) {
+            iframe.onerror();
+          }
+        }, 1000);
+      };
+
+      div.appendChild(iframe);
+      return div;
     }
 
-    function loadStudiosFromExcel(url) {
-      fetch(url)
-        .then(res => res.arrayBuffer())
-        .then(buffer => {
-          const workbook = XLSX.read(buffer, { type: 'buffer' });
-          const sheetName = workbook.SheetNames[0];
-          const sheet = workbook.Sheets[sheetName];
-          const data = XLSX.utils.sheet_to_json(sheet);
-
-          const container = document.getElementById("feed");
-          data.forEach(row => {
-            const url = row['Web'];
-            if (typeof url === 'string' && url.startsWith('http')) {
-              const div = document.createElement("div");
-              div.className = "profile";
-              div.innerHTML = `<iframe src="${url}" loading="lazy"></iframe>`;
-              container.appendChild(div);
-            }
-          });
-        });
+    async function checkURL(url) {
+      try {
+        const response = await fetch(url, { method: 'HEAD', mode: 'no-cors' });
+        return true;
+      } catch {
+        return false;
+      }
     }
 
-    loadStudiosFromExcel("LISTING_GRAPHISTES_ET_STUDIOS.xlsx");
+    async function loadGrid() {
+      const container = document.getElementById("feed");
+      container.innerHTML = "";
+      const sortedLinks = [...studioLinks].sort((a, b) => a.localeCompare(b));
+
+      for (const url of sortedLinks) {
+        const isOk = await checkURL(url);
+        if (!isOk) continue;
+        const card = createIframeOrFallback(url);
+        container.appendChild(card);
+      }
+    }
+
+    loadGrid();
   </script>
 </body>
 </html>
