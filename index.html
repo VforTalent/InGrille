@@ -135,7 +135,27 @@
       stroke-width: 2;
     }
   </style>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js">async function getBehanceWebsiteUrl(profileUrl) {
+  try {
+    const username = profileUrl.split("behance.net/")[1].replace(/\/$/, '');
+    const proxyUrl = `https://api.allorigins.win/raw?url=https://www.behance.net/${username}`;
+    const res = await fetch(proxyUrl);
+    const html = await res.text();
+    const doc = new DOMParser().parseFromString(html, 'text/html');
+    const links = Array.from(doc.querySelectorAll('a'));
+    const websiteLink = links.find(a => a.href && !a.href.includes('behance.net') && !a.href.includes('adobe.com'));
+
+    const nameElement = doc.querySelector('meta[property="og:title"]') || doc.querySelector('title');
+    const name = nameElement ? nameElement.content || nameElement.innerText : null;
+
+    return { website: websiteLink?.href || null, name };
+  } catch (e) {
+    console.error('Behance lookup failed for', profileUrl, e);
+    return { website: null, name: null };
+  }
+  }
+}
+</script>
 </head>
 <body>
   <div class="sidebar">
@@ -172,7 +192,7 @@ function extractHostname(url) {
   }
 }
 
-function createCard(url) {
+async function createCard(url, displayName) {
   const div = document.createElement("div");
   div.className = "profile";
 
@@ -181,7 +201,7 @@ function createCard(url) {
   label.href = url;
   label.target = "_blank";
 
-  label.textContent = extractHostname(url);
+  label.textContent = displayName;
 
   if (url.includes("instagram.com")) {
     const fallback = document.createElement("img");
@@ -251,17 +271,24 @@ function loadGrid(list = studioLinks) {
 
   const getDisplayLabel = (url) => extractHostname(url);
 
-  const sorted = [...list].sort((a, b) => getDisplayLabel(a).localeCompare(getDisplayLabel(b)));
+  const sorted = [...list].sort((a, b) => extractHostname(a).localeCompare(extractHostname(b)));
   for (const url of sorted) {
-    const card = createCard(url);
+    let finalUrl = url;
+    let displayName = extractHostname(url);
+    if (url.includes("behance.net")) {
+      const behanceData = await getBehanceWebsiteUrl(url);
+      finalUrl = behanceData.website || url;
+      displayName = behanceData.name || extractHostname(url);
+    }
+    const card = await createCard(finalUrl, displayName);
     container.appendChild(card);
 
     if (siteList) {
       const item = document.createElement("li");
-      item.textContent = extractHostname(url);
+      item.textContent = displayName;
       item.style.cursor = "pointer";
       item.onclick = () => {
-  showPreview(url);
+        showPreview(finalUrl);
   const allItems = document.querySelectorAll('#siteList li');
   allItems.forEach(i => {
     i.style.backgroundColor = '';
