@@ -148,12 +148,8 @@
   label.target = "_blank";
   label.textContent = extractHostname(url);
 
-  const iframe = document.createElement("iframe");
-  iframe.src = url;
-  iframe.loading = "lazy";
-
-  iframe.onerror = () => {
-    iframe.remove();
+  // Instagram ne supporte pas les iframes, on affiche directement une capture
+  if (url.includes("instagram.com")) {
     const fallback = document.createElement("img");
     fallback.className = "fallback";
     fallback.src = `https://in-grille-screenshot.onrender.com/screenshot?url=${encodeURIComponent(url)}`;
@@ -162,14 +158,31 @@
     fallback.style.width = '100%';
     fallback.style.height = '350px';
     div.appendChild(fallback);
-  };
+    div.appendChild(label);
+  } else {
+    const iframe = document.createElement("iframe");
+    iframe.src = url;
+    iframe.loading = "lazy";
 
-  div.appendChild(iframe);
-  div.appendChild(label);
+    iframe.onerror = () => {
+      iframe.remove();
+      const fallback = document.createElement("img");
+      fallback.className = "fallback";
+      fallback.src = `https://in-grille-screenshot.onrender.com/screenshot?url=${encodeURIComponent(url)}`;
+      fallback.alt = extractHostname(url);
+      fallback.style.objectFit = 'cover';
+      fallback.style.width = '100%';
+      fallback.style.height = '350px';
+      div.appendChild(fallback);
+      div.appendChild(label);
+    };
+
+    div.appendChild(iframe);
+    div.appendChild(label);
+  }
 
   return div;
 }
-    }
 
     function loadGrid(list = studioLinks) {
   const container = document.getElementById("feed");
