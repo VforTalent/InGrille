@@ -72,7 +72,7 @@
       position: absolute;
       bottom: 12px;
       left: 12px;
-      background: rgba(255, 255, 255, 0.7);
+      background: rgba(255, 255, 255, 0.9);
       padding: 6px 12px;
       border-radius: 999px;
       font-size: 0.85rem;
@@ -174,10 +174,14 @@
     }
 
     function loadGrid(list = studioLinks) {
-      const container = document.getElementById("feed");
-      container.innerHTML = "";
-      const sortedLinks = [...list].sort((a, b) => extractHostname(a).localeCompare(extractHostname(b)));
-sortedLinks.forEach((url, i) => sortedLinks[i] = { url, index: i });
+  const container = document.getElementById("feed");
+  container.innerHTML = "";
+  const sortedLinks = [...list].sort((a, b) => extractHostname(a).localeCompare(extractHostname(b)));
+  for (const url of sortedLinks) {
+    const card = createCard(url);
+    container.appendChild(card);
+  }
+});
       sortedLinks.sort((a, b) => a.index - b.index);
       const rowLength = 6; // nombre de colonnes
       for (let i = 0; i < rowLength; i++) {
@@ -197,4 +201,3 @@ sortedLinks.forEach((url, i) => sortedLinks[i] = { url, index: i });
   </script>
 </body>
 </html>
-
