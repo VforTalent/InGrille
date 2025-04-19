@@ -342,7 +342,7 @@ document.getElementById("btnArtistes").textContent = "Talents";
   const sidebarTitle = document.getElementById("sidebarTitle");
   if (type === 'studios') {
     if (sidebarTitle) sidebarTitle.textContent = "Liste des studios";
-    loadGrid(studioLinks);
+    switchTo('studios');
   } else if (type === 'artistes') {
     if (sidebarTitle) sidebarTitle.textContent = "Liste des talents";
     loadGrid(artistesLinks);
@@ -381,4 +381,3 @@ window.onload = () => fetchExcel('./data/LISTING_GRAPHISTES_ET_STUDIOS.xlsx');
 </script>
 </body>
 </html>
-
