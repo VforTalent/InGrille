@@ -161,7 +161,7 @@
     div.appendChild(label);
   } else {
     const iframe = document.createElement("iframe");
-    iframe.src = url;
+    iframe.src = `/api/proxy?url=${encodeURIComponent(url)}`;
     iframe.loading = "lazy";
 
     iframe.onerror = () => {
