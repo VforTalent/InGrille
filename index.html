@@ -365,12 +365,12 @@ async function fetchExcel(fileUrl) {
   const sheetArtistes = workbook.Sheets[workbook.SheetNames[1]];
   const jsonArtistes = XLSX.utils.sheet_to_json(sheetArtistes, { header: 1 });
   const behanceFromStudios = jsonStudios.slice(1)
-    .map(row => typeof row[3] === 'string' ? row[3].trim() : null)
+    .map(row => row[3] ? String(row[3]).trim() : null)
     .filter(Boolean)
     .filter(url => url.includes("behance.net"));
 
   artistesLinks = jsonArtistes.slice(1)
-    .map(row => typeof row[1] === 'string' ? row[1].trim() : null)
+    .map(row => row[1] ? String(row[1]).trim() : null)
     .filter(Boolean)
     .concat(behanceFromStudios);
 
