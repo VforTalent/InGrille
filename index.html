@@ -148,10 +148,159 @@
       100% { opacity: 0.5; }
     }
   </style>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js">
+function extractName(url) {
+  try {
+    const u = new URL(url);
+    if (u.hostname.includes('instagram.com') || u.hostname.includes('behance.net')) {
+      return u.pathname.replace(/^\//, '').replace(/\/$/, '');
+    }
+    return u.hostname.replace(/^www\./, '');
+  } catch (e) {
+    return url;
+  }
+}
+
+function createCard(url) {
+  const div = document.createElement("div");
+  div.className = "profile";
+
+  const label = document.createElement("a");
+  label.className = "site-label";
+  label.href = url;
+  label.target = "_blank";
+  label.textContent = extractName(url);
+
+  if (url.includes("instagram.com")) {
+    const img = document.createElement("img");
+    img.className = "fallback";
+    img.src = `https://in-grille-screenshot.onrender.com/screenshot?url=${encodeURIComponent(url)}`;
+    img.alt = extractName(url);
+    div.appendChild(img);
+    div.appendChild(label);
+    return div;
+  }
+
+  const iframe = document.createElement("iframe");
+  iframe.src = url;
+  iframe.loading = "lazy";
+  iframe.onerror = () => {
+    iframe.remove();
+    const fallback = document.createElement("img");
+    fallback.className = "fallback";
+    fallback.src = `https://in-grille-screenshot.onrender.com/screenshot?url=${encodeURIComponent(url)}`;
+    fallback.alt = extractName(url);
+    div.appendChild(fallback);
+    div.appendChild(label);
+  };
+
+  div.appendChild(iframe);
+  div.appendChild(label);
+  return div;
+}
+
+function loadGrid(type) {
+  const container = document.getElementById("feed");
+  const siteList = document.getElementById("siteList");
+  const urls = window.links[type] || [];
+
+  container.innerHTML = "";
+  siteList.innerHTML = "";
+
+  const sorted = [...urls].sort((a, b) => {
+    try {
+      return new URL(a).hostname.localeCompare(new URL(b).hostname);
+    } catch {
+      return 0;
+    }
+  });
+
+  for (const url of sorted) {
+    const card = createCard(url);
+    container.appendChild(card);
+
+    const item = document.createElement("li");
+    item.textContent = extractName(url);
+    item.style.cursor = "pointer";
+    item.onclick = () => {
+      showPreview(url);
+      document.querySelectorAll("#siteList li").forEach(li => {
+        li.style.backgroundColor = '';
+        li.style.textDecoration = 'none';
+      });
+      item.style.backgroundColor = 'yellow';
+      item.style.textDecoration = 'line-through';
+    };
+    siteList.appendChild(item);
+  }
+}
+
+function switchTo(type) {
+  document.getElementById("btnStudios").style.backgroundColor = "#fff";
+  document.getElementById("btnTalents").style.backgroundColor = "#fff";
+  document.getElementById("btnStudios").style.textDecoration = "none";
+  document.getElementById("btnTalents").style.textDecoration = "none";
+
+  if (type === 'studios') {
+    document.getElementById("btnStudios").style.backgroundColor = "yellow";
+    document.getElementById("btnStudios").style.textDecoration = "line-through";
+    document.getElementById("sidebarTitle").textContent = "Liste des studios";
+  } else {
+    document.getElementById("btnTalents").style.backgroundColor = "yellow";
+    document.getElementById("btnTalents").style.textDecoration = "line-through";
+    document.getElementById("sidebarTitle").textContent = "Liste des talents";
+  }
+
+  loadGrid(type);
+}
+
+function showPreview(url) {
+  const modal = document.getElementById("previewModal");
+  const frame = document.getElementById("previewFrame");
+  frame.src = url;
+  modal.style.display = "flex";
+
+  setTimeout(() => {
+    window.addEventListener("click", handleClick);
+  }, 0);
+
+  function handleClick(e) {
+    if (!modal.contains(e.target)) {
+      closePreview();
+      window.removeEventListener("click", handleClick);
+    }
+  }
+}
+
+function closePreview() {
+  const modal = document.getElementById("previewModal");
+  const frame = document.getElementById("previewFrame");
+  frame.src = "";
+  modal.style.display = "none";
+}
+</script>
 </head>
 <body>
-  <!-- BODY & SCRIPT CONTENT IDENTIQUE AU DERNIER ÉTAT FONCTIONNEL -->
+  <div class="sidebar">
+  <div class="sidebar-icon">
+    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <path d="M3 9.5L12 3l9 6.5v11a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1v-11z" />
+    </svg>
+  </div>
+  <h2 id="sidebarTitle">Liste</h2>
+  <ul id="siteList"></ul>
+</div>
+<div class="controls">
+  <button id="btnStudios" onclick="switchTo('studios')">Studios</button>
+  <button id="btnTalents" onclick="switchTo('talents')">Talents</button>
+</div>
+<div class="grid" id="feed"></div>
+<div id="previewModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background-color:rgba(0,0,0,0.8); z-index:1000; justify-content:center; align-items:center;">
+  <div style="position:relative; width:90%; height:90%; background:#fff; border-radius:8px; overflow:hidden;">
+    <button onclick="closePreview()" style="position:absolute; top:10px; right:10px; z-index:1001; background:#fff; color:#111; border:none; padding:6px 12px; border-radius:4px; cursor:pointer; text-decoration: line-through; background-color: yellow;">Fermer</button>
+    <iframe id="previewFrame" src="" style="width:100%; height:100%; border:none;"></iframe>
+  </div>
+</div>
 
 <script>
 window.addEventListener('DOMContentLoaded', () => {
@@ -167,8 +316,17 @@ window.addEventListener('DOMContentLoaded', () => {
       if (!workbook.SheetNames || workbook.SheetNames.length < 2) {
         throw new Error("Le fichier Excel doit contenir deux feuilles (Studios et Talents).");
       }
-      // Ajoute ici le traitement habituel des données studioLinks/artistesLinks
-      // ...
+            const sheetStudios = workbook.Sheets[workbook.SheetNames[0]];
+      const sheetTalents = workbook.Sheets[workbook.SheetNames[1]];
+
+      const dataStudios = XLSX.utils.sheet_to_json(sheetStudios, { header: 1 });
+      const dataTalents = XLSX.utils.sheet_to_json(sheetTalents, { header: 1 });
+
+      const studioLinks = dataStudios.slice(1).map(row => row[0]).filter(Boolean);
+      const talentLinks = dataTalents.slice(1).map(row => row[0]).filter(Boolean);
+
+      window.links = { studios: studioLinks, talents: talentLinks };
+      switchTo('studios');
     })
     .catch(err => {
       console.error("Erreur lors du chargement du fichier Excel:", err);
