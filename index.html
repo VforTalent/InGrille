@@ -1,272 +1,132 @@
 <!DOCTYPE html>
-<html>
+<html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <title>ROCOBOT</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>InGrille - Instagram Feeds</title>
   <style>
     body {
-      background-color: black;
+      font-family: sans-serif;
       margin: 0;
       padding: 0;
-      font-family: "Helvetica", sans-serif;
+      background: #f3f3f3;
     }
-
-    h1,
-    button,
-    .site-title {
-      color: white;
-    }
-
-    .container {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 20px;
-      margin: 0 auto;
-      max-width: 1920px;
-      padding: 20px;
-    }
-
-    .iframe-wrapper {
-      position: relative;
-      width: calc(33.33% - 40px);
-      height: 0;
-      padding-bottom: 56.25%;
-      overflow: hidden;
-    }
-
-    .iframe-wrapper.list-view {
-      padding-bottom: 0;
-      height: auto;
-    }
-
-    .iframe-wrapper > iframe {
-      position: absolute;
+    .controls {
+      padding: 1rem;
+      text-align: center;
+      background: white;
+      position: sticky;
       top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
+      z-index: 10;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
     }
-
-    .site-wrapper {
-      position: relative;
-      width: 100%;
-      height: auto;
-      text-align: left;
-    }
-
-    .site-title {
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      margin: 10px;
-      font-size: 18px;
-      font-weight: bold;
-      text-decoration: none;
-      color: white;
-      transition: underline 0.3s;
-    }
-
-    .site-title:hover {
-      text-decoration: underline;
-    }
-
-    .switch-button {
-      position: fixed;
-      top: 10px;
-      right: 10px;
-      background-color: blue;
-      color: white;
-      padding: 10px 20px;
-      border: none;
-      border-radius: 5px;
+    .controls button {
+      margin: 0 0.5rem;
+      padding: 0.5rem 1rem;
+      font-size: 1rem;
       cursor: pointer;
-      font-family: "Helvetica", sans-serif;
+      border: none;
+      background: #000;
+      color: white;
+      border-radius: 5px;
     }
-
-    .list-view .iframe-wrapper {
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 1rem;
+      padding: 1rem;
+    }
+    .profile {
+      background: white;
+      padding: 1rem;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .profile img.pfp {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      margin-bottom: 0.5rem;
+    }
+    .username {
+      font-weight: bold;
+      margin-bottom: 1rem;
+    }
+    .posts {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 5px;
+    }
+    .posts img {
       width: 100%;
-      padding-bottom: 56.25%;
+      border-radius: 6px;
+      cursor: pointer;
     }
-
-    .list-view .iframe-wrapper iframe {
-      height: 0;
-      padding-bottom: 56.25%;
+    .list .grid {
+      display: flex;
+      flex-direction: column;
     }
   </style>
 </head>
 <body>
-  <h1>ROCOBOT</h1>
-  <button class="switch-button">List</button>
-  <div class="container" id="iframes-container"></div>
+  <div class="controls">
+    <button onclick="toggleView('grid')">Grille</button>
+    <button onclick="toggleView('list')">Liste</button>
+  </div>
+  <div class="grid" id="feed"></div>
 
   <script>
-    const iframesContainer = document.getElementById("iframes-container");
-    const switchButton = document.querySelector(".switch-button");
-
-    const referenceList = [
- "https://unireso-studio.com/",
-        "https://additivestudios.co.uk/",
-        "https://www.dkft.fr/",
-        "http://www.mecanique-g.com/",
-        "https://www.lightfield.london/",
-        "https://www.weareink.co.uk/",
-        "https://17mars.com/",
-        "https://3d-something.com/",
-        "https://www.908video.de/",
-        "https://ac3-studio.com/",
-        "https://www.aggressive.tv/",
-        "https://aixsponza.com/",
-        "https://antibody.tv/",
-        "https://denisassor.com/",
-        "https://www.atrbute.com/",
-        "https://alexandreavram.com",
-        "https://marcobergstein.com/",
-        "https://bisous-production.com/",
-        "https://www.bleedvfx.com/",
-        "https://www.blublustudios.com/",
-        "https://aboeinghoff.com/",
-        "https://builders-club.com/",
-        "https://butt-studio.com/",
-        "https://www.fredericcolin.com/",
-        "https://catk.de/",
-        "https://adriendezalay.com/",
-        "https://ditroit.it/",
-        "https://janelsner.com/",
-        "https://www.faubourg.tv/",
-        "https://www.feelingvisuel.com/",
-        "https://finalfrontier.tv/",
-        "https://www.fluentstudio.co.uk/",
-        "https://www.futurepowerstation.com/",
-        "https://futuredeluxe.com/",
-        "https://sylvaingaussens.com/",
-        "https://www.glassworksvfx.com/",
-        "https://www.hyp3rion.com/",
-        "https://www.i-reel.fr/",
-        "https://calango.nl/",
-        "https://jvg.es/",
-        "https://korb.tv/",
-        "https://lecube.tv/",
-        "https://www.les-monstres.com/",
-        "https://media.work/",
-        "https://www.unit.tv/",
-        "https://www.altcinc.com/",
-        "https://onesal.com/",
-        "https://www.studioriver.fr/",
-        "https://newformat.io/",
-        "https://www.monarch.tv/",
-        "https://www.monumental.art/",
-        "https://xk.studio/",
-        "https://www.manor.studio/",
-        "https://www.studioprivate.co.uk/",
-        "https://www.replica.works/",
-        "https://mvsm.com/",
-        "https://www.trizz.tv/",
-        "https://sixnfive.com/",
-        "https://www.meltvfx.com/",
-        "https://posthuman.studio/",
-        "https://le-truc.ch/",
-        "https://abra.network/",
-        "https://yambo-studio.com/",
-        "https://wangsoderstrom.com/",
-        "https://www.tomorrowbureau.io/",
-        "https://studiotaktil.com/",
-        "https://www.tactyc.studio/",
-        "https://www.daydreamervfx.com/",
-        "https://www.rawandrendered.com/",
-        "https://www.firm-studio.fr/",
-        "https://spotstudio.es/",
-        "https://www.bluenode.paris/",
-        "https://frame.dk/",
-        "https://serialcut.com/",
-        "https://www.bureauklausalman.com/",
-        "https://thescope.studio/",
-        "https://www.alreadybeenchewed.tv/",
-        "https://analogstudio.co.uk/",
-        "https://untoldstudios.tv/",
-        "https://gmunk.com/",
-        "https://www.hmxmedia.com/",
-        "https://zeitguised.com/",
-        "https://fyihenriksson.com/",
-        "https://sehsucht.de/",
-        "https://www.rfvisuals.com/",
-        "https://www.time-based-arts.com/",
-        "https://blinkink.co.uk/our-work/",
-        "https://heycarbon.com/",
-        "https://www.mimicproductions.com/",
-        "http://www.mikrosimage.com/",
-        "https://www.jsragency.com/artists",
-        "https://friendselectric.tv/",
-        "https://mainframe.co.uk/",
-        "https://www.protoeditions.co/projects",
-        "https://www.arsthanea.com/",
-        "https://imaginaryforces.com/",
-        "https://trauminc.com/",
-        "https://8apr.de/",
-        "https://panoply.co.uk/",
-        "https://www.dada-projects.com/",
-        "https://www.h5.fr/fr",
-        "https://menhirfx.com/",
+    const accounts = [
+      "louisvuitton", "gucci", "dior", "prada", "balenciaga",
+      "celine", "ysl", "off____white", "jacquemus"
     ];
 
-    const extractSiteName = (url) => {
-      const urlObj = new URL(url);
-      const hostname = urlObj.hostname.replace("www.", "");
-      return hostname;
-    };
+    async function fetchFeed(username) {
+      try {
+        const res = await fetch(`https://api.allorigins.win/raw?url=https://www.instagram.com/${username}/`);
+        const html = await res.text();
+        const json = JSON.parse(html.match(/<script type="application\/ld\+json">(.*?)<\/script>/)[1]);
 
-    const sortReferenceList = (list) => {
-      return list.sort((a, b) => {
-        const siteNameA = extractSiteName(a);
-        const siteNameB = extractSiteName(b);
-        return siteNameA.localeCompare(siteNameB);
-      });
-    };
+        const images = [...html.matchAll(/"display_url":"(https:\\/\\/[^\"]+)"/g)].slice(0, 9).map(m => m[1].replace(/\\/g, ''));
 
-    const createIframeWrapper = (url, title) => {
-      const trimmedSiteUrl = url.trim();
-      const iframeWrapper = document.createElement("div");
-      iframeWrapper.classList.add("iframe-wrapper");
-      const iframe = document.createElement("iframe");
-      iframe.src = trimmedSiteUrl;
-      iframe.setAttribute("loading", "lazy");
-      iframeWrapper.appendChild(iframe);
-      const siteWrapper = document.createElement("div");
-      siteWrapper.classList.add("site-wrapper");
-      const siteTitle = document.createElement("a");
-      siteTitle.classList.add("site-title");
-      siteTitle.href = trimmedSiteUrl;
-      siteTitle.target = "_blank";
-      siteTitle.innerText = title;
-      siteWrapper.appendChild(siteTitle);
-      iframeWrapper.appendChild(siteWrapper);
-      return iframeWrapper;
-    };
-
-    const toggleView = () => {
-      if (iframesContainer.classList.contains("list-view")) {
-        iframesContainer.classList.remove("list-view");
-        switchButton.innerText = "List";
-      } else {
-        iframesContainer.classList.add("list-view");
-        switchButton.innerText = "Grid";
+        return {
+          username: json.alternateName.replace('@',''),
+          pfp: json.image,
+          images,
+        };
+      } catch (e) {
+        console.error(`Erreur pour ${username}`, e);
+        return null;
       }
-    };
+    }
 
-    switchButton.addEventListener("click", toggleView);
+    async function loadFeeds() {
+      const container = document.getElementById("feed");
+      for (let user of accounts) {
+        const data = await fetchFeed(user);
+        if (!data) continue;
 
-    const renderReferenceList = () => {
-      const sortedList = sortReferenceList(referenceList);
-      iframesContainer.innerHTML = "";
-      sortedList.forEach((siteUrl) => {
-        const siteName = extractSiteName(siteUrl);
-        const iframeWrapper = createIframeWrapper(siteUrl, siteName);
-        iframesContainer.appendChild(iframeWrapper);
-      });
-    };
+        const div = document.createElement("div");
+        div.className = "profile";
+        div.innerHTML = `
+          <img class="pfp" src="${data.pfp}" alt="${data.username}" />
+          <div class="username">@${data.username}</div>
+          <div class="posts">
+            ${data.images.map(img => `<a href="${img}" target="_blank"><img src="${img}" /></a>`).join('')}
+          </div>
+        `;
+        container.appendChild(div);
+      }
+    }
 
-    renderReferenceList();
-    window.addEventListener("resize", renderReferenceList);
+    function toggleView(view) {
+      document.body.className = view;
+    }
+
+    loadFeeds();
   </script>
 </body>
 </html>
