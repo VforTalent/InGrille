@@ -280,7 +280,7 @@
 
       const sorted = [...list].sort((a, b) => getDisplayLabel(a).localeCompare(getDisplayLabel(b)));
 
-      const columnCount = getComputedStyle(container).columnCount || 6;
+      const columnCount = parseInt(getComputedStyle(container).getPropertyValue('column-count')) || 6;
       const columnized = Array.from({ length: columnCount }, () => []);
 
       sorted.forEach((item, index) => {
