@@ -184,27 +184,7 @@
   return div;
   }
 
-  fetch(`/api/proxy?url=${encodeURIComponent(url)}`)
-    .then(() => {
-      const iframe = document.createElement("iframe");
-      iframe.src = `/api/proxy?url=${encodeURIComponent(url)}`;
-      iframe.loading = "lazy";
-
-      iframe.onerror = () => {
-        iframe.remove();
-        div.appendChild(fallback);
-        div.appendChild(label);
-      };
-
-      div.appendChild(iframe);
-      div.appendChild(label);
-    })
-    .catch(() => {
-      div.appendChild(fallback);
-      div.appendChild(label);
-    });
-
-  return div;
+  
 }
 
     function loadGrid(list = studioLinks) {
