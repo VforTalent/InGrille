@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>InGrille - Instagram Feeds</title>
+  <title>InGrille - Studio Links</title>
   <style>
     body {
       font-family: sans-serif;
@@ -45,44 +45,13 @@
       flex-direction: column;
       align-items: center;
     }
-    .profile img.pfp {
-      width: 80px;
-      height: 80px;
-      border-radius: 50%;
-      margin-bottom: 0.5rem;
-    }
-    .username {
-      font-weight: bold;
-      margin-bottom: 0.5rem;
-    }
     .username a {
       color: #000;
       text-decoration: none;
+      font-weight: bold;
     }
     .username a:hover {
       text-decoration: underline;
-    }
-    .posts {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 5px;
-    }
-    .posts img {
-      width: 100%;
-      border-radius: 6px;
-      cursor: pointer;
-    }
-    .list .grid {
-      display: flex;
-      flex-direction: column;
-    }
-    .error-box {
-      padding: 1rem;
-      background: #ffe0e0;
-      color: #800;
-      margin: 1rem;
-      border-radius: 8px;
-      font-size: 0.9rem;
     }
   </style>
 </head>
@@ -94,75 +63,36 @@
   <div class="grid" id="feed"></div>
 
   <script>
-    const accounts = [...document.location.hash.replace('#', '').split(',').filter(Boolean)];
-    const defaultAccounts = [
-      "bullecrea", "adem.elahel", "albinmerle", "andrewanimated", "anthonyarquier",
-      "colektor", "carolinepauleau", "tendrilchris", "eightyfive", "eratoturing",
-      "eric_lebelge", "fab_graphicdesign", "fabio_sobrin", "grif", "icecream_paris",
-      "lestudiosketch", "dominic.mckerl", "greg_orms", "jonathan_lavanant", "jakub.dygdon",
-      "el_sner", "jacktone_okore", "jose_leon_molfino", "julien_fanton_dandon",
-      "kopfgestaltung", "lecamromainartdirection", "charobay", "reallukx", "marcelpiekarski",
-      "marcobergstein", "marco.fontan", "marie__augustin", "marieraffyediting",
-      "markdearman", "5fruits_2mss", "matiasfurno", "matthieuchauvirey", "maximeroz",
-      "mdj_studio.ai", "mgl.mldo", "natalieliiu", "nicolas.koenig", "imnidiadias",
-      "nik_gundersen", "olivierlescot", "pauljdalton", "pierrickopitz", "remogambacciani",
-      "romaingauthier_", "romanbratschi", "roma_kuzminykh", "iamrossmason", "sakkesoini",
-      "scaduxx", "stephanhelbing", "tba.3d", "tobias.faisst", "tomtaylor3d",
-      "ariexietrotiv", "wizmooood", "chassaing.xavier"
+    const studioLinks = [
+      "https://unireso-studio.com/", "https://additivestudios.co.uk/", "https://www.dkft.fr/",
+      "http://www.mecanique-g.com/", "https://www.lightfield.london/", "https://www.weareink.co.uk/",
+      "https://17mars.com/", "https://3d-something.com/", "https://www.908video.de/", "https://ac3-studio.com/",
+      "https://www.aggressive.tv/", "https://aixsponza.com/", "https://antibody.tv/", "https://denisassor.com/",
+      "https://www.atrbute.com/", "https://alexandreavram.com", "https://marcobergstein.com/",
+      "https://bisous-production.com/", "https://www.bleedvfx.com/", "https://www.blublustudios.com/",
+      "https://aboeinghoff.com/", "https://builders-club.com/", "https://butt-studio.com/",
+      "https://www.fredericcolin.com/", "https://catk.de/", "https://adriendezalay.com/",
+      "https://ditroit.it/", "https://janelsner.com/", "https://www.faubourg.tv/",
+      "https://www.feelingvisuel.com/", "https://finalfrontier.tv/", "https://www.fluentstudio.co.uk/",
+      "https://www.futurepowerstation.com/", "https://futuredeluxe.com/", "https://sylvaingaussens.com/",
+      "https://www.glassworksvfx.com/", "https://www.hyp3rion.com/", "https://www.i-reel.fr/",
+      "https://calango.nl/", "https://jvg.es/", "https://korb.tv/", "https://lecube.tv/",
+      "https://www.les-monstres.com/", "https://media.work/", "https://www.unit.tv/",
+      "https://www.altcinc.com/", "https://onesal.com/", "https://www.studioriver.fr/",
+      "https://newformat.io/", "https://www.monarch.tv/", "https://www.monumental.art/",
+      "https://xk.studio/"
     ];
 
-    const finalAccounts = accounts.length ? accounts : defaultAccounts;
-
-    async function fetchFeed(username) {
-      try {
-        const res = await fetch(`https://api.allorigins.win/raw?url=https://www.instagram.com/${username}/`);
-        const html = await res.text();
-
-        const scripts = [...html.matchAll(/<script type="application\/ld\+json">(.*?)<\/script>/gs)];
-        if (!scripts.length) throw new Error("JSON-LD introuvable");
-
-        let json = null;
-        for (let s of scripts) {
-          try {
-            json = JSON.parse(s[1]);
-            if (json.image) break;
-          } catch (e) {}
-        }
-        if (!json || !json.image) throw new Error("Données Instagram inexploitables");
-
-        const images = [...html.matchAll(/"display_url":"(https:\\/\\/[^\"]+)"/g)]
-          .slice(0, 9)
-          .map(m => m[1].replace(/\\/g, ''));
-
-        return {
-          username: json.alternateName.replace('@',''),
-          pfp: json.image,
-          images,
-        };
-      } catch (e) {
-        return { error: `Impossible de charger @${username} : ${e.message}` };
-      }
-    }
-
-    async function loadFeeds() {
+    function loadStudios() {
       const container = document.getElementById("feed");
-      for (let user of finalAccounts) {
-        const data = await fetchFeed(user);
+      for (const url of studioLinks) {
         const div = document.createElement("div");
         div.className = "profile";
-
-        if (data.error) {
-          div.innerHTML = `<div class="error-box">${data.error}</div>`;
-        } else {
-          div.innerHTML = `
-            <img class="pfp" src="${data.pfp}" alt="${data.username}" />
-            <div class="username"><a href="https://www.instagram.com/${data.username}" target="_blank">@${data.username}</a></div>
-            <div class="posts">
-              ${data.images.map(img => `<a href="${img}" target="_blank"><img src="${img}" /></a>`).join('')}
-            </div>
-          `;
-        }
-
+        div.innerHTML = `
+          <div class="username">
+            <a href="${url}" target="_blank">${url.replace(/^https?:\/\//, '').replace(/\/$/, '')}</a>
+          </div>
+        `;
         container.appendChild(div);
       }
     }
@@ -171,7 +101,7 @@
       document.body.className = view;
     }
 
-    loadFeeds();
+    loadStudios();
   </script>
 </body>
 </html>
