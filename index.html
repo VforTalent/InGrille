@@ -127,10 +127,8 @@
     ];
 
     const artistesLinks = [
-      "https://www.instagram.com/ash_thorp/", "https://www.instagram.com/felix_baffa/",
-      "https://www.instagram.com/jack_of_all_arts/", "https://www.instagram.com/patspov/",
-      "https://www.instagram.com/polkadotandmoonbeam/", "https://www.instagram.com/fredgoris/"
-    ];
+  "https://www.instagram.com/theeconomist/"
+];
 
     function extractHostname(url) {
       try {
@@ -150,7 +148,12 @@
   label.target = "_blank";
   label.textContent = extractHostname(url);
 
-  if (url.includes("instagram.com")) {
+  const iframe = document.createElement("iframe");
+  iframe.src = url;
+  iframe.loading = "lazy";
+
+  iframe.onerror = () => {
+    iframe.remove();
     const fallback = document.createElement("img");
     fallback.className = "fallback";
     fallback.src = `https://in-grille-screenshot.onrender.com/screenshot?url=${encodeURIComponent(url)}`;
@@ -160,27 +163,10 @@
     fallback.style.height = '350px';
     div.appendChild(fallback);
     div.appendChild(label);
-  } else {
-    const iframe = document.createElement("iframe");
-    iframe.src = url;
-    iframe.loading = "lazy";
+  };
 
-    iframe.onerror = () => {
-      iframe.remove();
-      const fallback = document.createElement("img");
-      fallback.className = "fallback";
-      fallback.src = `https://in-grille-screenshot.onrender.com/screenshot?url=${encodeURIComponent(url)}`;
-      fallback.alt = extractHostname(url);
-      fallback.style.objectFit = 'cover';
-      fallback.style.width = '100%';
-      fallback.style.height = '350px';
-      div.appendChild(fallback);
-      div.appendChild(label);
-    };
-
-    div.appendChild(iframe);
-    div.appendChild(label);
-  }
+  div.appendChild(iframe);
+  div.appendChild(label);
 
   return div;
     }
