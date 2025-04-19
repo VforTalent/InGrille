@@ -173,9 +173,12 @@
     let artistesLinks = [];
 
     function extractHostname(url) {
-      try {
-        return new URL(url).hostname.replace('www.', '').split('/')[0];
-      } catch (e) {
+  try {
+    return new URL(url).hostname.replace(/^www\./, '').replace(/^http:\/\//, '').replace(/^https:\/\//, '').split('/')[0];
+  } catch (e) {
+    return url;
+  }
+} catch (e) {
         return url;
       }
     }
