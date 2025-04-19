@@ -16,7 +16,7 @@
       color: #fff;
     }
     .controls {
-      position: sticky;a
+      position: sticky;
       top: 0;
       z-index: 10;
       padding: 1rem;
@@ -90,210 +90,49 @@
       content: "👀";
     }
     .site-label:hover { background: #eee; }
-  </style>
-  <style>
+
     .sidebar {
       position: fixed;
       top: 0;
       left: 0;
-      width: 220px;
       height: 100%;
-      overflow-y: auto;
       background-color: #f5f5f5;
       color: #111;
       padding: 1rem;
       border-right: 1px solid #ddd;
       z-index: 20;
+      width: 40px;
+      transition: width 0.3s ease;
+      overflow-x: hidden;
+    }
+    .sidebar:hover {
+      width: 220px;
     }
     .sidebar h2 {
+      font-size: 1.1rem;
       margin-top: 0;
-      font-size: 1.2rem;
-      color: #333;
+      white-space: nowrap;
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+    .sidebar:hover h2 {
+      opacity: 1;
     }
     .sidebar ul {
       list-style: none;
       padding: 0;
       margin: 0;
+      opacity: 0;
+      transition: opacity 0.2s ease-in-out 0.1s;
     }
-    .sidebar li {
-      font-size: 0.9rem;
-      margin-bottom: 0.5rem;
-      word-break: break-word;
+    .sidebar:hover ul {
+      opacity: 1;
+    }
+    .sidebar-icon {
+      font-size: 1.5rem;
+      display: block;
+      margin-bottom: 1rem;
+      text-align: center;
     }
   </style>
 </head>
-<body>
-  <div class="sidebar">
-    <h2>Liste des sites</h2>
-    <ul id="siteList"></ul>
-  </div>
-
-  <!-- 🎛️ SECTION : Boutons de contrôle -->
-  <div class="controls">
-        <button onclick="switchTo('studios')">Studios</button>
-    <button onclick="switchTo('artistes')">Artistes</button>
-  </div>
-
-  <!-- 🧱 SECTION : Grille des sites -->
-  <div class="grid" id="feed"></div>
-
-  <!-- ⚙️ SECTION : Script principal -->
-  <script>
-
-    // 📁 Liens vers les studios et artistes
-    const studioLinks = [
-  "https://unireso-studio.com/", "https://additivestudios.co.uk/", "https://www.dkft.fr/",
-  "http://www.mecanique-g.com/", "https://www.lightfield.london/", "https://www.weareink.co.uk/",
-  "https://17mars.com/", "https://www.908video.de/", "https://ac3-studio.com/",
-  "https://www.aggressive.tv/", "https://aixsponza.com/", "https://antibody.tv/", "https://denisassor.com/",
-  "https://www.atrbute.com/", "https://alexandreavram.com", "https://marcobergstein.com/",
-  "https://bisous-production.com/", "https://www.bleedvfx.com/", "https://www.blublustudios.com/",
-  "https://aboeinghoff.com/", "https://builders-club.com/", "https://butt-studio.com/",
-  "https://www.fredericcolin.com/", "https://catk.de/", "https://adriendezalay.com/",
-  "https://ditroit.it/", "https://janelsner.com/", "https://www.faubourg.tv/",
-  "https://www.feelingvisuel.com/", "https://finalfrontier.tv/", "https://www.fluentstudio.co.uk/",
-  "https://www.futurepowerstation.com/", "https://futuredeluxe.com/", "https://sylvaingaussens.com/",
-  "https://www.glassworksvfx.com/", "https://www.hyp3rion.com/", "https://www.i-reel.fr/",
-  "https://calango.nl/", "https://jvg.es/", "https://korb.tv/", "https://lecube.tv/",
-  "https://www.les-monstres.com/", "https://media.work/", "https://www.unit.tv/",
-  "https://www.altcinc.com/", "https://onesal.com/", "https://www.studioriver.fr/",
-  "https://newformat.io/", "https://www.monarch.tv/", "https://www.monumental.art/",
-  "https://xk.studio/", "https://gimmick.studio", "https://www.bloompictures.fr/",
-  "https://prism-studio.com/", "https://www.far-studio.com/", "https://visionaries777.com/",
-  "https://fixstudio.com/", "https://sevensenses.fr/", "https://www.fuelvfx.com/",
-  "https://www.nokill.fr/", "https://www.ravenstudio.tv/", "https://blirp.tv/",
-  "https://www.parisberlin.tv/", "https://makemepulse.com/", "https://www.niceandserious.com/",
-  "https://www.framestore.com/", "https://www.platige.com/", "https://panoply.co.uk/",
-  "https://www.moving-picture.com/", "https://www.tendril.ca/", "https://www.creamstudio.com/",
-  "https://www.takumikamiyama.com/", "https://mattrunks.com/", "https://www.troisvingtsix.com/",
-  "https://ambassadors.com/"
-];
-    const artistesLinks = ["https://www.instagram.com/theeconomist/"];
-
-    // 🧠 Fonction : Extraire le nom de domaine d'une URL
-    function extractHostname(url) {
-      try {
-        return new URL(url).hostname.replace('www.', '').split('/')[0];
-      } catch (e) {
-        return url;
-      }
-    }
-
-    // 🧱 Fonction : Créer une carte pour un site donné
-    function createCard(url) {
-      const div = document.createElement("div");
-      div.className = "profile";
-
-      const label = document.createElement("a");
-      label.className = "site-label";
-      label.href = url;
-      label.target = "_blank";
-      label.textContent = extractHostname(url);
-
-      if (url.includes("instagram.com")) {
-        const fallback = document.createElement("img");
-        fallback.className = "fallback";
-        fallback.src = `https://in-grille-screenshot.onrender.com/screenshot?url=${encodeURIComponent(url)}`;
-        fallback.alt = extractHostname(url);
-        fallback.style.objectFit = 'cover';
-        fallback.style.width = '100%';
-        fallback.style.height = '350px';
-        div.appendChild(fallback);
-        div.appendChild(label);
-        return div;
-      }
-
-      const iframe = document.createElement("iframe");
-      iframe.src = url;
-      iframe.loading = "lazy";
-
-      iframe.onerror = () => {
-        iframe.remove();
-        const fallback = document.createElement("img");
-        fallback.className = "fallback";
-        fallback.src = `https://in-grille-screenshot.onrender.com/screenshot?url=${encodeURIComponent(url)}`;
-        fallback.alt = extractHostname(url);
-        fallback.style.objectFit = 'cover';
-        fallback.style.width = '100%';
-        fallback.style.height = '350px';
-        div.appendChild(fallback);
-        div.appendChild(label);
-      };
-
-      div.appendChild(iframe);
-      div.appendChild(label);
-
-      return div;
-    }
-
-    // 🔄 Fonction : Charger la grille avec une liste donnée
-    function loadGrid(list = studioLinks) {
-  const container = document.getElementById("feed");
-  const siteList = document.getElementById("siteList");
-  container.innerHTML = "";
-  siteList.innerHTML = "";
-  const sortedLinks = [...list].sort((a, b) => extractHostname(a).localeCompare(extractHostname(b)));
-
-  let index = 0;
-  function tryNext() {
-    if (index >= sortedLinks.length) return;
-    const url = sortedLinks[index++];
-
-    fetch(url, { method: 'HEAD', mode: 'no-cors' })
-      .then(() => {
-        const card = createCard(url);
-        container.appendChild(card);
-
-        const item = document.createElement("li");
-        item.textContent = extractHostname(url);
-        item.style.cursor = "pointer";
-        item.onclick = () => showPreview(url);
-        siteList.appendChild(item);
-      })
-      .catch(() => {
-        console.warn("URL ignorée (inaccessible) :", url);
-      })
-      .finally(() => {
-        tryNext();
-      });
-  }
-
-  tryNext();
-}
-    }
-
-    // 🔘 Fonction : Basculer entre studios et artistes
-    function switchTo(type) {
-      if (type === 'studios') loadGrid(studioLinks);
-      else if (type === 'artistes') loadGrid(artistesLinks);
-    }
-
-    
-    // 🧭 Fonction : Afficher un aperçu en plein écran
-    function showPreview(url) {
-      const modal = document.getElementById("previewModal");
-      const frame = document.getElementById("previewFrame");
-      frame.src = url;
-      modal.style.display = "flex";
-    }
-
-    // ❌ Fonction : Fermer la fenêtre d'aperçu
-    function closePreview() {
-      const modal = document.getElementById("previewModal");
-      const frame = document.getElementById("previewFrame");
-      frame.src = "";
-      modal.style.display = "none";
-    }
-
-    // ▶️ Charger par défaut les studios
-    loadGrid();
-  </script>
-  <!-- 🔍 Fenêtre d'aperçu -->
-  <div id="previewModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background-color:rgba(0,0,0,0.8); z-index:1000; justify-content:center; align-items:center;">
-    <div style="position:relative; width:90%; height:90%; background:#fff; border-radius:8px; overflow:hidden;">
-      <button onclick="closePreview()" style="position:absolute; top:10px; right:10px; z-index:1001; background:#e60023; color:#fff; border:none; padding:6px 12px; border-radius:4px; cursor:pointer;">Fermer</button>
-      <iframe id="previewFrame" src="" style="width:100%; height:100%; border:none;"></iframe>
-    </div>
-  </div>
-</body>
-</html>
