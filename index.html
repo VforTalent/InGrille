@@ -141,45 +141,50 @@
     }
 
     function createCard(url) {
-      const div = document.createElement("div");
-      div.className = "profile";
+  const div = document.createElement("div");
+  div.className = "profile";
 
-      const iframe = document.createElement("iframe");
-      iframe.src = `/api/proxy?url=${encodeURIComponent(url)}`;
-      iframe.loading = "lazy";
+  const iframe = document.createElement("iframe");
+  iframe.src = `/api/proxy?url=${encodeURIComponent(url)}`;
+  iframe.loading = "lazy";
 
-      const label = document.createElement("a");
-      label.className = "site-label";
-      label.href = url;
-      label.target = "_blank";
-      label.textContent = extractHostname(url);
+  const label = document.createElement("a");
+  label.className = "site-label";
+  label.href = url;
+  label.target = "_blank";
+  label.textContent = extractHostname(url);
 
-      iframe.onerror = () => {
-  iframe.remove();
-  const fallback = document.createElement("img");
-  fallback.className = "fallback";
-  fallback.src = `https://in-grille-screenshot.onrender.com/screenshot?url=${encodeURIComponent(url)}`;
-  fallback.alt = extractHostname(url);
-  fallback.style.objectFit = 'cover';
-  fallback.style.width = '100%';
-  fallback.style.height = '350px';
-  div.appendChild(fallback);
+  iframe.onerror = () => {
+    iframe.remove();
+    const fallback = document.createElement("img");
+    fallback.className = "fallback";
+    fallback.src = `https://in-grille-screenshot.onrender.com/screenshot?url=${encodeURIComponent(url)}`;
+    fallback.alt = extractHostname(url);
+    fallback.style.objectFit = 'cover';
+    fallback.style.width = '100%';
+    fallback.style.height = '350px';
+    div.appendChild(fallback);
+    div.appendChild(label);
+  };
+
+  div.appendChild(iframe);
   div.appendChild(label);
-};
 
-      div.appendChild(iframe);
-      div.appendChild(label);
-
-      return div;
+  return div;
     }
 
     function loadGrid(list = studioLinks) {
       const container = document.getElementById("feed");
       container.innerHTML = "";
       const sortedLinks = [...list].sort((a, b) => extractHostname(a).localeCompare(extractHostname(b)));
-      for (const url of sortedLinks) {
-        const card = createCard(url);
-        container.appendChild(card);
+sortedLinks.forEach((url, i) => sortedLinks[i] = { url, index: i });
+      sortedLinks.sort((a, b) => a.index - b.index);
+      const rowLength = 6; // nombre de colonnes
+      for (let i = 0; i < rowLength; i++) {
+        for (let j = i; j < sortedLinks.length; j += rowLength) {
+          const card = createCard(sortedLinks[j].url);
+          container.appendChild(card);
+        }
       }
     }
 
