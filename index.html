@@ -173,12 +173,9 @@
     let artistesLinks = [];
 
     function extractHostname(url) {
-  try {
-    return new URL(url).hostname.replace(/^www\./, '').replace(/^http:\/\//, '').replace(/^https:\/\//, '').split('/')[0];
-  } catch (e) {
-    return url;
-  }
-} catch (e) {
+      try {
+        return new URL(url).hostname.replace('www.', '').split('/')[0];
+      } catch (e) {
         return url;
       }
     }
@@ -268,26 +265,7 @@
       container.innerHTML = "";
       if (siteList) siteList.innerHTML = "";
 
-      const getDisplayLabel = (url) => {
-        if (url.includes("instagram.com/")) {
-          return url.split("instagram.com/")[1]?.replace(/\/$/, '') || extractHostname(url);
-        } else if (url.includes("behance.net/")) {
-          return url.split("behance.net/")[1]?.replace(/\/$/, '') || extractHostname(url);
-        } else {
-          return extractHostname(url);
-        }
-      };
-
-      const sorted = [...list].sort((a, b) => getDisplayLabel(a).localeCompare(getDisplayLabel(b)));
-
-      const columnCount = parseInt(getComputedStyle(container).getPropertyValue('column-count')) || 6;
-      const columnized = Array.from({ length: columnCount }, () => []);
-
-      sorted.forEach((item, index) => {
-        columnized[index % columnCount].push(item);
-      });
-
-      const sortedLinks = columnized.flat();
+      const sortedLinks = [...list].sort((a, b) => extractHostname(a).localeCompare(b));
 
       for (const url of sortedLinks) {
         const card = createCard(url);
@@ -360,11 +338,11 @@
 
       const sheetStudios = workbook.Sheets[workbook.SheetNames[0]];
       const jsonStudios = XLSX.utils.sheet_to_json(sheetStudios, { header: 1 });
-      studioLinks = jsonStudios.slice(1).map(row => (typeof row[3] === 'string' ? row[3].trim() : null)).filter(Boolean);
+      studioLinks = jsonStudios.slice(1).map(row => row[3]).filter(Boolean);
 
       const sheetArtistes = workbook.Sheets[workbook.SheetNames[1]];
       const jsonArtistes = XLSX.utils.sheet_to_json(sheetArtistes, { header: 1 });
-      artistesLinks = jsonArtistes.slice(1).map(row => (typeof row[1] === 'string' ? row[1].trim() : null)).filter(Boolean);
+      artistesLinks = jsonArtistes.slice(1).map(row => row[1]).filter(Boolean);
 
       loadGrid(studioLinks);
     }
@@ -373,4 +351,3 @@
   </script>
 </body>
 </html>
-
