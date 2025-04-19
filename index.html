@@ -145,7 +145,7 @@
   div.className = "profile";
 
   const iframe = document.createElement("iframe");
-  iframe.src = `/api/proxy?url=${encodeURIComponent(url)}`;
+  iframe.src = url;
   iframe.loading = "lazy";
 
   const label = document.createElement("a");
