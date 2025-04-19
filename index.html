@@ -360,11 +360,11 @@
 
       const sheetStudios = workbook.Sheets[workbook.SheetNames[0]];
       const jsonStudios = XLSX.utils.sheet_to_json(sheetStudios, { header: 1 });
-      studioLinks = jsonStudios.slice(1).map(row => row[3]).filter(Boolean);
+      studioLinks = jsonStudios.slice(1).map(row => (typeof row[3] === 'string' ? row[3].trim() : null)).filter(Boolean);
 
       const sheetArtistes = workbook.Sheets[workbook.SheetNames[1]];
       const jsonArtistes = XLSX.utils.sheet_to_json(sheetArtistes, { header: 1 });
-      artistesLinks = jsonArtistes.slice(1).map(row => row[1]).filter(Boolean);
+      artistesLinks = jsonArtistes.slice(1).map(row => (typeof row[1] === 'string' ? row[1].trim() : null)).filter(Boolean);
 
       loadGrid(studioLinks);
     }
