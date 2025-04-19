@@ -113,7 +113,14 @@
       "https://www.les-monstres.com/", "https://media.work/", "https://www.unit.tv/",
       "https://www.altcinc.com/", "https://onesal.com/", "https://www.studioriver.fr/",
       "https://newformat.io/", "https://www.monarch.tv/", "https://www.monumental.art/",
-      "https://xk.studio/"
+      "https://xk.studio/",
+      "https://gimmick.studio", "https://www.bloompictures.fr/", "https://prism-studio.com/", "https://www.far-studio.com/",
+      "https://visionaries777.com/", "https://fixstudio.com/", "https://sevensenses.fr/", "https://www.fuelvfx.com/",
+      "https://www.nokill.fr/", "https://www.ravenstudio.tv/", "https://blirp.tv/", "https://www.parisberlin.tv/",
+      "https://makemepulse.com/", "https://www.niceandserious.com/", "https://www.framestore.com/",
+      "https://www.platige.com/", "https://panoply.co.uk/", "https://www.moving-picture.com/",
+      "https://www.tendril.ca/", "https://www.creamstudio.com/", "https://www.takumikamiyama.com/",
+      "https://mattrunks.com/", "https://www.troisvingtsix.com/", "https://ambassadors.com/"
     ];
 
     function extractHostname(url) {
@@ -147,7 +154,7 @@
     function loadGrid() {
       const container = document.getElementById("feed");
       container.innerHTML = "";
-      const sortedLinks = [...studioLinks].sort((a, b) => a.localeCompare(b));
+      const sortedLinks = [...studioLinks].sort((a, b) => extractHostname(a).localeCompare(extractHostname(b)));
       for (const url of sortedLinks) {
         const card = createCard(url);
         container.appendChild(card);
