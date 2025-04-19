@@ -53,7 +53,14 @@
     }
     .username {
       font-weight: bold;
-      margin-bottom: 1rem;
+      margin-bottom: 0.5rem;
+    }
+    .username a {
+      color: #000;
+      text-decoration: none;
+    }
+    .username a:hover {
+      text-decoration: underline;
     }
     .posts {
       display: grid;
@@ -69,6 +76,14 @@
       display: flex;
       flex-direction: column;
     }
+    .error-box {
+      padding: 1rem;
+      background: #ffe0e0;
+      color: #800;
+      margin: 1rem;
+      border-radius: 8px;
+      font-size: 0.9rem;
+    }
   </style>
 </head>
 <body>
@@ -79,18 +94,45 @@
   <div class="grid" id="feed"></div>
 
   <script>
-    const accounts = [
-      "louisvuitton", "gucci", "dior", "prada", "balenciaga",
-      "celine", "ysl", "off____white", "jacquemus"
+    const accounts = [...document.location.hash.replace('#', '').split(',').filter(Boolean)];
+    const defaultAccounts = [
+      "bullecrea", "adem.elahel", "albinmerle", "andrewanimated", "anthonyarquier",
+      "colektor", "carolinepauleau", "tendrilchris", "eightyfive", "eratoturing",
+      "eric_lebelge", "fab_graphicdesign", "fabio_sobrin", "grif", "icecream_paris",
+      "lestudiosketch", "dominic.mckerl", "greg_orms", "jonathan_lavanant", "jakub.dygdon",
+      "el_sner", "jacktone_okore", "jose_leon_molfino", "julien_fanton_dandon",
+      "kopfgestaltung", "lecamromainartdirection", "charobay", "reallukx", "marcelpiekarski",
+      "marcobergstein", "marco.fontan", "marie__augustin", "marieraffyediting",
+      "markdearman", "5fruits_2mss", "matiasfurno", "matthieuchauvirey", "maximeroz",
+      "mdj_studio.ai", "mgl.mldo", "natalieliiu", "nicolas.koenig", "imnidiadias",
+      "nik_gundersen", "olivierlescot", "pauljdalton", "pierrickopitz", "remogambacciani",
+      "romaingauthier_", "romanbratschi", "roma_kuzminykh", "iamrossmason", "sakkesoini",
+      "scaduxx", "stephanhelbing", "tba.3d", "tobias.faisst", "tomtaylor3d",
+      "ariexietrotiv", "wizmooood", "chassaing.xavier"
     ];
+
+    const finalAccounts = accounts.length ? accounts : defaultAccounts;
 
     async function fetchFeed(username) {
       try {
         const res = await fetch(`https://api.allorigins.win/raw?url=https://www.instagram.com/${username}/`);
         const html = await res.text();
-        const json = JSON.parse(html.match(/<script type="application\/ld\+json">(.*?)<\/script>/)[1]);
 
-        const images = [...html.matchAll(/"display_url":"(https:\\/\\/[^\"]+)"/g)].slice(0, 9).map(m => m[1].replace(/\\/g, ''));
+        const scripts = [...html.matchAll(/<script type="application\/ld\+json">(.*?)<\/script>/gs)];
+        if (!scripts.length) throw new Error("JSON-LD introuvable");
+
+        let json = null;
+        for (let s of scripts) {
+          try {
+            json = JSON.parse(s[1]);
+            if (json.image) break;
+          } catch (e) {}
+        }
+        if (!json || !json.image) throw new Error("Données Instagram inexploitables");
+
+        const images = [...html.matchAll(/"display_url":"(https:\\/\\/[^\"]+)"/g)]
+          .slice(0, 9)
+          .map(m => m[1].replace(/\\/g, ''));
 
         return {
           username: json.alternateName.replace('@',''),
@@ -98,26 +140,29 @@
           images,
         };
       } catch (e) {
-        console.error(`Erreur pour ${username}`, e);
-        return null;
+        return { error: `Impossible de charger @${username} : ${e.message}` };
       }
     }
 
     async function loadFeeds() {
       const container = document.getElementById("feed");
-      for (let user of accounts) {
+      for (let user of finalAccounts) {
         const data = await fetchFeed(user);
-        if (!data) continue;
-
         const div = document.createElement("div");
         div.className = "profile";
-        div.innerHTML = `
-          <img class="pfp" src="${data.pfp}" alt="${data.username}" />
-          <div class="username">@${data.username}</div>
-          <div class="posts">
-            ${data.images.map(img => `<a href="${img}" target="_blank"><img src="${img}" /></a>`).join('')}
-          </div>
-        `;
+
+        if (data.error) {
+          div.innerHTML = `<div class="error-box">${data.error}</div>`;
+        } else {
+          div.innerHTML = `
+            <img class="pfp" src="${data.pfp}" alt="${data.username}" />
+            <div class="username"><a href="https://www.instagram.com/${data.username}" target="_blank">@${data.username}</a></div>
+            <div class="posts">
+              ${data.images.map(img => `<a href="${img}" target="_blank"><img src="${img}" /></a>`).join('')}
+            </div>
+          `;
+        }
+
         container.appendChild(div);
       }
     }
