@@ -188,29 +188,10 @@ function loadGrid(list = studioLinks) {
   const container = document.getElementById("feed");
   container.innerHTML = "";
   const sortedLinks = [...list].sort((a, b) => extractHostname(a).localeCompare(extractHostname(b)));
-
-  let index = 0;
-  function tryNext() {
-    if (index >= sortedLinks.length) return;
-    const url = sortedLinks[index++];
-    fetch(url, { method: 'HEAD' })
-      .then((response) => {
-        if (response.ok) {
-          const card = createCard(url);
-          container.appendChild(card);
-        } else {
-          console.warn("URL invalide (non-ok):", url);
-        }
-      })
-      .catch(() => {
-        console.warn("URL invalide ou inaccessible:", url);
-      })
-      .finally(() => {
-        tryNext();
-      });
+  for (const url of sortedLinks) {
+    const card = createCard(url);
+    container.appendChild(card);
   }
-  tryNext();
-}
 }
 
     function switchTo(type) {
