@@ -275,9 +275,12 @@
     }
 
     function switchTo(type) {
-      if (type === 'studios') switchTo('studios');
-      else if (type === 'artistes') loadGrid(artistesLinks);
-    }
+  if (type === 'studios') {
+    loadGrid(studioLinks);
+  } else if (type === 'artistes') {
+    loadGrid(artistesLinks);
+  }
+}
 
     async function fetchExcel(fileUrl) {
   const res = await fetch(fileUrl);
