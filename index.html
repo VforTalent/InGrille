@@ -136,3 +136,153 @@
     }
   </style>
 </head>
+<body>
+  <div class="sidebar">
+    <div class="sidebar-icon">👁</div>
+    <h2>Sites</h2>
+    <ul id="siteList"></ul>
+  </div>
+
+  <div class="controls">
+    <button onclick="switchTo('studios')">Studios</button>
+    <button onclick="switchTo('artistes')">Artistes</button>
+  </div>
+  <div class="grid" id="feed"></div>
+
+  <div id="previewModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background-color:rgba(0,0,0,0.8); z-index:1000; justify-content:center; align-items:center;">
+    <div style="position:relative; width:90%; height:90%; background:#fff; border-radius:8px; overflow:hidden;">
+      <button onclick="closePreview()" style="position:absolute; top:10px; right:10px; z-index:1001; background:#e60023; color:#fff; border:none; padding:6px 12px; border-radius:4px; cursor:pointer;">Fermer</button>
+      <iframe id="previewFrame" src="" style="width:100%; height:100%; border:none;"></iframe>
+    </div>
+  </div>
+
+  <script>
+    const studioLinks = [
+      "https://unireso-studio.com/", "https://additivestudios.co.uk/", "https://www.dkft.fr/",
+      "http://www.mecanique-g.com/", "https://www.lightfield.london/", "https://www.weareink.co.uk/",
+      "https://17mars.com/", "https://3d-something.com/", "https://www.908video.de/", "https://ac3-studio.com/",
+      "https://www.aggressive.tv/", "https://aixsponza.com/", "https://antibody.tv/", "https://denisassor.com/",
+      "https://www.atrbute.com/", "https://alexandreavram.com", "https://marcobergstein.com/",
+      "https://bisous-production.com/", "https://www.bleedvfx.com/", "https://www.blublustudios.com/",
+      "https://aboeinghoff.com/", "https://builders-club.com/", "https://butt-studio.com/",
+      "https://www.fredericcolin.com/", "https://catk.de/", "https://adriendezalay.com/",
+      "https://ditroit.it/", "https://janelsner.com/", "https://www.faubourg.tv/",
+      "https://www.feelingvisuel.com/", "https://finalfrontier.tv/", "https://www.fluentstudio.co.uk/",
+      "https://www.futurepowerstation.com/", "https://futuredeluxe.com/", "https://sylvaingaussens.com/",
+      "https://www.glassworksvfx.com/", "https://www.hyp3rion.com/", "https://www.i-reel.fr/",
+      "https://calango.nl/", "https://jvg.es/", "https://korb.tv/", "https://lecube.tv/",
+      "https://www.les-monstres.com/", "https://media.work/", "https://www.unit.tv/",
+      "https://www.altcinc.com/", "https://onesal.com/", "https://www.studioriver.fr/",
+      "https://newformat.io/", "https://www.monarch.tv/", "https://www.monumental.art/",
+      "https://xk.studio/", "https://gimmick.studio", "https://www.bloompictures.fr/",
+      "https://prism-studio.com/", "https://www.far-studio.com/", "https://visionaries777.com/",
+      "https://fixstudio.com/", "https://sevensenses.fr/", "https://www.fuelvfx.com/",
+      "https://www.nokill.fr/", "https://www.ravenstudio.tv/", "https://blirp.tv/",
+      "https://www.parisberlin.tv/", "https://makemepulse.com/", "https://www.niceandserious.com/",
+      "https://www.framestore.com/", "https://www.platige.com/", "https://panoply.co.uk/",
+      "https://www.moving-picture.com/", "https://www.tendril.ca/", "https://www.creamstudio.com/",
+      "https://www.takumikamiyama.com/", "https://mattrunks.com/", "https://www.troisvingtsix.com/",
+      "https://ambassadors.com/"
+    ];
+
+    const artistesLinks = ["https://www.instagram.com/theeconomist/"];
+
+    function extractHostname(url) {
+      try {
+        return new URL(url).hostname.replace('www.', '').split('/')[0];
+      } catch (e) {
+        return url;
+      }
+    }
+
+    function createCard(url) {
+      const div = document.createElement("div");
+      div.className = "profile";
+
+      const label = document.createElement("a");
+      label.className = "site-label";
+      label.href = url;
+      label.target = "_blank";
+      label.textContent = extractHostname(url);
+
+      if (url.includes("instagram.com")) {
+        const fallback = document.createElement("img");
+        fallback.className = "fallback";
+        fallback.src = `https://in-grille-screenshot.onrender.com/screenshot?url=${encodeURIComponent(url)}`;
+        fallback.alt = extractHostname(url);
+        fallback.style.objectFit = 'cover';
+        fallback.style.width = '100%';
+        fallback.style.height = '350px';
+        div.appendChild(fallback);
+        div.appendChild(label);
+        return div;
+      }
+
+      const iframe = document.createElement("iframe");
+      iframe.src = url;
+      iframe.loading = "lazy";
+
+      iframe.onerror = () => {
+        iframe.remove();
+        const fallback = document.createElement("img");
+        fallback.className = "fallback";
+        fallback.src = `https://in-grille-screenshot.onrender.com/screenshot?url=${encodeURIComponent(url)}`;
+        fallback.alt = extractHostname(url);
+        fallback.style.objectFit = 'cover';
+        fallback.style.width = '100%';
+        fallback.style.height = '350px';
+        div.appendChild(fallback);
+        div.appendChild(label);
+      };
+
+      div.appendChild(iframe);
+      div.appendChild(label);
+
+      return div;
+    }
+
+    function showPreview(url) {
+      const modal = document.getElementById("previewModal");
+      const frame = document.getElementById("previewFrame");
+      frame.src = url;
+      modal.style.display = "flex";
+    }
+
+    function closePreview() {
+      const modal = document.getElementById("previewModal");
+      const frame = document.getElementById("previewFrame");
+      frame.src = "";
+      modal.style.display = "none";
+    }
+
+    function loadGrid(list = studioLinks) {
+      const container = document.getElementById("feed");
+      const siteList = document.getElementById("siteList");
+      container.innerHTML = "";
+      if (siteList) siteList.innerHTML = "";
+
+      const sortedLinks = [...list].sort((a, b) => extractHostname(a).localeCompare(extractHostname(b)));
+
+      for (const url of sortedLinks) {
+        const card = createCard(url);
+        container.appendChild(card);
+
+        if (siteList) {
+          const item = document.createElement("li");
+          item.textContent = extractHostname(url);
+          item.style.cursor = "pointer";
+          item.onclick = () => showPreview(url);
+          siteList.appendChild(item);
+        }
+      }
+    }
+
+    function switchTo(type) {
+      if (type === 'studios') loadGrid(studioLinks);
+      else if (type === 'artistes') loadGrid(artistesLinks);
+    }
+
+    loadGrid();
+  </script>
+</body>
+</html>
