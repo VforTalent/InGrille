@@ -58,7 +58,7 @@
       width: 100%;
       border: none;
       display: block;
-      height: 525px;
+      height: 420px;
     }
     .fallback {
       width: 100%;
@@ -235,10 +235,23 @@
     }
 
     function showPreview(url) {
-      const modal = document.getElementById("previewModal");
-      const frame = document.getElementById("previewFrame");
-      frame.src = url;
-      modal.style.display = "flex";
+  const modal = document.getElementById("previewModal");
+  const frame = document.getElementById("previewFrame");
+  frame.src = url;
+  modal.style.display = "flex";
+
+  // Ferme le preview quand on clique en dehors
+  setTimeout(() => {
+    window.addEventListener("click", handleOutsideClick);
+  }, 0);
+
+  function handleOutsideClick(e) {
+    if (!modal.contains(e.target) || e.target === modal) {
+      closePreview();
+      window.removeEventListener("click", handleOutsideClick);
+    }
+  }
+
     }
 
     function closePreview() {
