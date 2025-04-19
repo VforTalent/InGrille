@@ -24,15 +24,8 @@
       display: flex;
       justify-content: center;
     }
-    .controls button {
-      background: #fff;
-      color: #111;
-      border: none;
-      padding: 0.7rem 1.5rem;
-      border-radius: 24px;
-      font-size: 1rem;
-      cursor: pointer;
-      margin: 0 0.5rem;
+    $1
+      transition: all 0.3s ease;
     }
     .grid {
       column-count: 6;
@@ -155,14 +148,14 @@
   </div>
 
   <div class="controls">
-    <button onclick="switchTo('studios')">Studios</button>
-    <button onclick="switchTo('artistes')">Artistes</button>
+    $1 id="btnStudios">Studios</button>
+    $1 id="btnArtistes">Artistes</button>
   </div>
   <div class="grid" id="feed"></div>
 
   <div id="previewModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background-color:rgba(0,0,0,0.8); z-index:1000; justify-content:center; align-items:center;">
     <div style="position:relative; width:90%; height:90%; background:#fff; border-radius:8px; overflow:hidden;">
-      <button onclick="closePreview()" style="position:absolute; top:10px; right:10px; z-index:1001; background:#e60023; color:#fff; border:none; padding:6px 12px; border-radius:4px; cursor:pointer;">Fermer</button>
+      <button id="closePreviewBtn" onclick="closePreview()" style="background:#fff; color:#111; border:none; padding:6px 12px; border-radius:4px; cursor:pointer; text-decoration: line-through; background-color: yellow;">Fermer</button>
       <iframe id="previewFrame" src="" style="width:100%; height:100%; border:none;"></iframe>
     </div>
   </div>
@@ -289,6 +282,18 @@
     }
 
     function switchTo(type) {
+  document.getElementById("btnStudios").style.backgroundColor = "#fff";
+  document.getElementById("btnArtistes").style.backgroundColor = "#fff";
+  document.getElementById("btnStudios").style.textDecoration = "none";
+  document.getElementById("btnArtistes").style.textDecoration = "none";
+
+  if (type === 'studios') {
+    document.getElementById("btnStudios").style.backgroundColor = "yellow";
+    document.getElementById("btnStudios").style.textDecoration = "line-through";
+  } else if (type === 'artistes') {
+    document.getElementById("btnArtistes").style.backgroundColor = "yellow";
+    document.getElementById("btnArtistes").style.textDecoration = "line-through";
+  }
   const sidebarTitle = document.getElementById("sidebarTitle");
   if (type === 'studios') {
     if (sidebarTitle) sidebarTitle.textContent = "Liste des studios";
