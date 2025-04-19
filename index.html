@@ -181,15 +181,7 @@ function createCard(url) {
   label.href = url;
   label.target = "_blank";
 
-  if (url.includes("instagram.com/")) {
-    const parts = url.split("instagram.com/");
-    label.textContent = parts[1]?.replace(/\/$/, '') || extractHostname(url);
-  } else if (url.includes("behance.net/")) {
-    const parts = url.split("behance.net/");
-    label.textContent = parts[1]?.replace(/\/$/, '') || extractHostname(url);
-  } else {
-    label.textContent = extractHostname(url);
-  }
+  label.textContent = extractHostname(url);
 
   if (url.includes("instagram.com")) {
     const fallback = document.createElement("img");
@@ -257,15 +249,7 @@ function loadGrid(list = studioLinks) {
   container.innerHTML = "";
   if (siteList) siteList.innerHTML = "";
 
-  const getDisplayLabel = (url) => {
-    if (url.includes("instagram.com/")) {
-      return url.split("instagram.com/")[1]?.replace(/\/$/, '') || extractHostname(url);
-    } else if (url.includes("behance.net/")) {
-      return url.split("behance.net/")[1]?.replace(/\/$/, '') || extractHostname(url);
-    } else {
-      return extractHostname(url);
-    }
-  };
+  const getDisplayLabel = (url) => extractHostname(url);
 
   const sorted = [...list].sort((a, b) => getDisplayLabel(a).localeCompare(getDisplayLabel(b)));
   for (const url of sorted) {
@@ -274,7 +258,7 @@ function loadGrid(list = studioLinks) {
 
     if (siteList) {
       const item = document.createElement("li");
-      item.textContent = getDisplayLabel(url);
+      item.textContent = extractHostname(url);
       item.style.cursor = "pointer";
       item.onclick = () => {
   showPreview(url);
