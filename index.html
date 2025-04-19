@@ -135,7 +135,8 @@
       stroke-width: 2;
     }
   </style>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js">async function getBehanceWebsiteUrl(profileUrl) {
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"><script>
+async function getBehanceWebsiteUrl(profileUrl) {
   try {
     const username = profileUrl.split("behance.net/")[1].replace(/\/$/, '');
     const proxyUrl = `https://api.allorigins.win/raw?url=https://www.behance.net/${username}`;
@@ -152,7 +153,6 @@
   } catch (e) {
     console.error('Behance lookup failed for', profileUrl, e);
     return { website: null, name: null };
-  }
   }
 }
 </script>
@@ -263,7 +263,7 @@ function closePreview() {
   modal.style.display = "none";
 }
 
-function loadGrid(list = studioLinks) {
+async function loadGrid(list = studioLinks) {
   const container = document.getElementById("feed");
   const siteList = document.getElementById("siteList");
   container.innerHTML = "";
@@ -335,11 +335,22 @@ async function fetchExcel(fileUrl) {
 
   const sheetStudios = workbook.Sheets[workbook.SheetNames[0]];
   const jsonStudios = XLSX.utils.sheet_to_json(sheetStudios, { header: 1 });
-  studioLinks = jsonStudios.slice(1).map(row => typeof row[3] === 'string' ? row[3].trim() : null).filter(Boolean);
+  studioLinks = jsonStudios.slice(1)
+    .map(row => typeof row[3] === 'string' ? row[3].trim() : null)
+    .filter(Boolean)
+    .filter(url => !url.includes("behance.net"));
 
   const sheetArtistes = workbook.Sheets[workbook.SheetNames[1]];
   const jsonArtistes = XLSX.utils.sheet_to_json(sheetArtistes, { header: 1 });
-  artistesLinks = jsonArtistes.slice(1).map(row => typeof row[1] === 'string' ? row[1].trim() : null).filter(Boolean);
+  const behanceFromStudios = jsonStudios.slice(1)
+    .map(row => typeof row[3] === 'string' ? row[3].trim() : null)
+    .filter(Boolean)
+    .filter(url => url.includes("behance.net"));
+
+  artistesLinks = jsonArtistes.slice(1)
+    .map(row => typeof row[1] === 'string' ? row[1].trim() : null)
+    .filter(Boolean)
+    .concat(behanceFromStudios);
 
   loadGrid(studioLinks);
 }
