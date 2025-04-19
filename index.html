@@ -148,38 +148,39 @@
   label.target = "_blank";
   label.textContent = extractHostname(url);
 
-  // Instagram ne supporte pas les iframes, on affiche directement une capture
+  const fallback = document.createElement("img");
+  fallback.className = "fallback";
+  fallback.src = `https://in-grille-screenshot.onrender.com/screenshot?url=${encodeURIComponent(url)}`;
+  fallback.alt = extractHostname(url);
+  fallback.style.objectFit = 'cover';
+  fallback.style.width = '100%';
+  fallback.style.height = '350px';
+
   if (url.includes("instagram.com")) {
-    const fallback = document.createElement("img");
-    fallback.className = "fallback";
-    fallback.src = `https://in-grille-screenshot.onrender.com/screenshot?url=${encodeURIComponent(url)}`;
-    fallback.alt = extractHostname(url);
-    fallback.style.objectFit = 'cover';
-    fallback.style.width = '100%';
-    fallback.style.height = '350px';
     div.appendChild(fallback);
     div.appendChild(label);
-  } else {
-    const iframe = document.createElement("iframe");
-    iframe.src = `/api/proxy?url=${encodeURIComponent(url)}`;
-    iframe.loading = "lazy";
+    return div;
+  }
 
-    iframe.onerror = () => {
-      iframe.remove();
-      const fallback = document.createElement("img");
-      fallback.className = "fallback";
-      fallback.src = `https://in-grille-screenshot.onrender.com/screenshot?url=${encodeURIComponent(url)}`;
-      fallback.alt = extractHostname(url);
-      fallback.style.objectFit = 'cover';
-      fallback.style.width = '100%';
-      fallback.style.height = '350px';
+  fetch(`/api/proxy?url=${encodeURIComponent(url)}`)
+    .then(() => {
+      const iframe = document.createElement("iframe");
+      iframe.src = `/api/proxy?url=${encodeURIComponent(url)}`;
+      iframe.loading = "lazy";
+
+      iframe.onerror = () => {
+        iframe.remove();
+        div.appendChild(fallback);
+        div.appendChild(label);
+      };
+
+      div.appendChild(iframe);
+      div.appendChild(label);
+    })
+    .catch(() => {
       div.appendChild(fallback);
       div.appendChild(label);
-    };
-
-    div.appendChild(iframe);
-    div.appendChild(label);
-  }
+    });
 
   return div;
 }
