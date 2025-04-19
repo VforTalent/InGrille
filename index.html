@@ -284,6 +284,13 @@
           }
           item.style.cursor = "pointer";
           item.onclick = () => {
+            const modal = document.getElementById("previewModal");
+            if (modal.style.display !== "flex") {
+              showPreview(url);
+            } else {
+              const frame = document.getElementById("previewFrame");
+              frame.src = url;
+            }
             const allItems = document.querySelectorAll('#siteList li');
             allItems.forEach(i => {
               i.style.backgroundColor = '';
@@ -291,7 +298,6 @@
             });
             item.style.backgroundColor = 'yellow';
             item.style.textDecoration = 'line-through';
-            showPreview(url);
           };
           siteList.appendChild(item);
         }
