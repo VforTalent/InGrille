@@ -4,16 +4,15 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>InGrille - Studio Pages</title>
-
-  <!-- 🎨 SECTION : Styles CSS -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
   <style>
     * { box-sizing: border-box; }
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+      font-family: 'Inter', sans-serif;
       margin: 0;
       padding: 0;
       background-color: #fff;
-      color: #fff;
+      color: #111;
     }
     .controls {
       position: sticky;
@@ -87,10 +86,9 @@
       gap: 6px;
     }
     .site-label::before {
-      content: "👀";
+      content: "";
     }
     .site-label:hover { background: #eee; }
-
     .sidebar {
       position: fixed;
       top: 0;
@@ -129,16 +127,28 @@
       opacity: 1;
     }
     .sidebar-icon {
-      font-size: 1.5rem;
-      display: block;
+      display: flex;
+      justify-content: center;
+      align-items: center;
       margin-bottom: 1rem;
-      text-align: center;
+    }
+    .sidebar-icon svg {
+      width: 24px;
+      height: 24px;
+      stroke: #111;
+      fill: none;
+      stroke-width: 2;
     }
   </style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
 <body>
   <div class="sidebar">
-    <div class="sidebar-icon">👁</div>
+    <div class="sidebar-icon">
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path d="M3 9.5L12 3l9 6.5v11a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1v-11z" />
+      </svg>
+    </div>
     <h2>Sites</h2>
     <ul id="siteList"></ul>
   </div>
@@ -157,35 +167,9 @@
   </div>
 
   <script>
-    const studioLinks = [
-      "https://unireso-studio.com/", "https://additivestudios.co.uk/", "https://www.dkft.fr/",
-      "http://www.mecanique-g.com/", "https://www.lightfield.london/", "https://www.weareink.co.uk/",
-      "https://17mars.com/", "https://3d-something.com/", "https://www.908video.de/", "https://ac3-studio.com/",
-      "https://www.aggressive.tv/", "https://aixsponza.com/", "https://antibody.tv/", "https://denisassor.com/",
-      "https://www.atrbute.com/", "https://alexandreavram.com", "https://marcobergstein.com/",
-      "https://bisous-production.com/", "https://www.bleedvfx.com/", "https://www.blublustudios.com/",
-      "https://aboeinghoff.com/", "https://builders-club.com/", "https://butt-studio.com/",
-      "https://www.fredericcolin.com/", "https://catk.de/", "https://adriendezalay.com/",
-      "https://ditroit.it/", "https://janelsner.com/", "https://www.faubourg.tv/",
-      "https://www.feelingvisuel.com/", "https://finalfrontier.tv/", "https://www.fluentstudio.co.uk/",
-      "https://www.futurepowerstation.com/", "https://futuredeluxe.com/", "https://sylvaingaussens.com/",
-      "https://www.glassworksvfx.com/", "https://www.hyp3rion.com/", "https://www.i-reel.fr/",
-      "https://calango.nl/", "https://jvg.es/", "https://korb.tv/", "https://lecube.tv/",
-      "https://www.les-monstres.com/", "https://media.work/", "https://www.unit.tv/",
-      "https://www.altcinc.com/", "https://onesal.com/", "https://www.studioriver.fr/",
-      "https://newformat.io/", "https://www.monarch.tv/", "https://www.monumental.art/",
-      "https://xk.studio/", "https://gimmick.studio", "https://www.bloompictures.fr/",
-      "https://prism-studio.com/", "https://www.far-studio.com/", "https://visionaries777.com/",
-      "https://fixstudio.com/", "https://sevensenses.fr/", "https://www.fuelvfx.com/",
-      "https://www.nokill.fr/", "https://www.ravenstudio.tv/", "https://blirp.tv/",
-      "https://www.parisberlin.tv/", "https://makemepulse.com/", "https://www.niceandserious.com/",
-      "https://www.framestore.com/", "https://www.platige.com/", "https://panoply.co.uk/",
-      "https://www.moving-picture.com/", "https://www.tendril.ca/", "https://www.creamstudio.com/",
-      "https://www.takumikamiyama.com/", "https://mattrunks.com/", "https://www.troisvingtsix.com/",
-      "https://ambassadors.com/"
-    ];
+    let studioLinks = [];
 
-    const artistesLinks = ["https://www.instagram.com/theeconomist/"];
+    let artistesLinks = [];
 
     function extractHostname(url) {
       try {
@@ -282,7 +266,30 @@
       else if (type === 'artistes') loadGrid(artistesLinks);
     }
 
-    loadGrid();
+    async function fetchExcel(fileUrl) {
+  const res = await fetch(fileUrl);
+  const blob = await res.blob();
+  const data = await blob.arrayBuffer();
+  const workbook = XLSX.read(data, { type: 'array' });
+
+  const sheetStudios = workbook.Sheets[workbook.SheetNames[0]];
+  const jsonStudios = XLSX.utils.sheet_to_json(sheetStudios, { header: 1 });
+  studioLinks = jsonStudios.slice(1).map(row => row[3]).filter(Boolean);
+
+  const sheetArtistes = workbook.Sheets[workbook.SheetNames[1]];
+  const jsonArtistes = XLSX.utils.sheet_to_json(sheetArtistes, { header: 1 });
+  artistesLinks = jsonArtistes.slice(1).map(row => row[1]).filter(Boolean);
+
+  loadGrid(studioLinks);
+}
+
+async function loadAll() {
+  studioLinks = await fetchCSV('./data/STUDIOS.csv', 3);    // colonne D = index 3
+  artistesLinks = await fetchCSV('./data/ARTISTES.csv', 1); // colonne B = index 1
+  loadGrid(studioLinks);
+}
+
+window.onload = () => fetchExcel('./data/LISTING_GRAPHISTES_ET_STUDIOS.xlsx');
   </script>
 </body>
 </html>
