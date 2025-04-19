@@ -268,7 +268,26 @@
       container.innerHTML = "";
       if (siteList) siteList.innerHTML = "";
 
-      const sortedLinks = [...list].sort((a, b) => extractHostname(a).localeCompare(b));
+      const getDisplayLabel = (url) => {
+        if (url.includes("instagram.com/")) {
+          return url.split("instagram.com/")[1]?.replace(/\/$/, '') || extractHostname(url);
+        } else if (url.includes("behance.net/")) {
+          return url.split("behance.net/")[1]?.replace(/\/$/, '') || extractHostname(url);
+        } else {
+          return extractHostname(url);
+        }
+      };
+
+      const sorted = [...list].sort((a, b) => getDisplayLabel(a).localeCompare(getDisplayLabel(b)));
+
+      const columnCount = getComputedStyle(container).columnCount || 6;
+      const columnized = Array.from({ length: columnCount }, () => []);
+
+      sorted.forEach((item, index) => {
+        columnized[index % columnCount].push(item);
+      });
+
+      const sortedLinks = columnized.flat();
 
       for (const url of sortedLinks) {
         const card = createCard(url);
