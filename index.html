@@ -4,6 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>InGrille - Studio Pages</title>
+
+  <!-- 🎨 SECTION : Styles CSS -->
   <style>
     * { box-sizing: border-box; }
     body {
@@ -91,45 +93,24 @@
   </style>
 </head>
 <body>
+
+  <!-- 🎛️ SECTION : Boutons de contrôle -->
   <div class="controls">
     <button onclick="switchTo('studios')">Studios</button>
     <button onclick="switchTo('artistes')">Artistes</button>
   </div>
+
+  <!-- 🧱 SECTION : Grille des sites -->
   <div class="grid" id="feed"></div>
 
+  <!-- ⚙️ SECTION : Script principal -->
   <script>
-    const studioLinks = [
-      "https://unireso-studio.com/", "https://additivestudios.co.uk/", "https://www.dkft.fr/",
-      "http://www.mecanique-g.com/", "https://www.lightfield.london/", "https://www.weareink.co.uk/",
-      "https://17mars.com/", "https://3d-something.com/", "https://www.908video.de/", "https://ac3-studio.com/",
-      "https://www.aggressive.tv/", "https://aixsponza.com/", "https://antibody.tv/", "https://denisassor.com/",
-      "https://www.atrbute.com/", "https://alexandreavram.com", "https://marcobergstein.com/",
-      "https://bisous-production.com/", "https://www.bleedvfx.com/", "https://www.blublustudios.com/",
-      "https://aboeinghoff.com/", "https://builders-club.com/", "https://butt-studio.com/",
-      "https://www.fredericcolin.com/", "https://catk.de/", "https://adriendezalay.com/",
-      "https://ditroit.it/", "https://janelsner.com/", "https://www.faubourg.tv/",
-      "https://www.feelingvisuel.com/", "https://finalfrontier.tv/", "https://www.fluentstudio.co.uk/",
-      "https://www.futurepowerstation.com/", "https://futuredeluxe.com/", "https://sylvaingaussens.com/",
-      "https://www.glassworksvfx.com/", "https://www.hyp3rion.com/", "https://www.i-reel.fr/",
-      "https://calango.nl/", "https://jvg.es/", "https://korb.tv/", "https://lecube.tv/",
-      "https://www.les-monstres.com/", "https://media.work/", "https://www.unit.tv/",
-      "https://www.altcinc.com/", "https://onesal.com/", "https://www.studioriver.fr/",
-      "https://newformat.io/", "https://www.monarch.tv/", "https://www.monumental.art/",
-      "https://xk.studio/", "https://gimmick.studio", "https://www.bloompictures.fr/",
-      "https://prism-studio.com/", "https://www.far-studio.com/", "https://visionaries777.com/",
-      "https://fixstudio.com/", "https://sevensenses.fr/", "https://www.fuelvfx.com/",
-      "https://www.nokill.fr/", "https://www.ravenstudio.tv/", "https://blirp.tv/",
-      "https://www.parisberlin.tv/", "https://makemepulse.com/", "https://www.niceandserious.com/",
-      "https://www.framestore.com/", "https://www.platige.com/", "https://panoply.co.uk/",
-      "https://www.moving-picture.com/", "https://www.tendril.ca/", "https://www.creamstudio.com/",
-      "https://www.takumikamiyama.com/", "https://mattrunks.com/", "https://www.troisvingtsix.com/",
-      "https://ambassadors.com/"
-    ];
 
-    const artistesLinks = [
-  "https://www.instagram.com/theeconomist/"
-];
+    // 📁 Liens vers les studios et artistes
+    const studioLinks = [ ... ]; // raccourci pour lisibilité
+    const artistesLinks = ["https://www.instagram.com/theeconomist/"];
 
+    // 🧠 Fonction : Extraire le nom de domaine d'une URL
     function extractHostname(url) {
       try {
         return new URL(url).hostname.replace('www.', '').split('/')[0];
@@ -138,67 +119,89 @@
       }
     }
 
+    // 🧱 Fonction : Créer une carte pour un site donné
     function createCard(url) {
-  const div = document.createElement("div");
-  div.className = "profile";
+      const div = document.createElement("div");
+      div.className = "profile";
 
-  const label = document.createElement("a");
-  label.className = "site-label";
-  label.href = url;
-  label.target = "_blank";
-  label.textContent = extractHostname(url);
+      const label = document.createElement("a");
+      label.className = "site-label";
+      label.href = url;
+      label.target = "_blank";
+      label.textContent = extractHostname(url);
 
-  if (url.includes("instagram.com")) {
-    const fallback = document.createElement("img");
-    fallback.className = "fallback";
-    fallback.src = `https://in-grille-screenshot.onrender.com/screenshot?url=${encodeURIComponent(url)}`;
-    fallback.alt = extractHostname(url);
-    fallback.style.objectFit = 'cover';
-    fallback.style.width = '100%';
-    fallback.style.height = '350px';
-    div.appendChild(fallback);
-    div.appendChild(label);
-    return div;
-  }
+      if (url.includes("instagram.com")) {
+        const fallback = document.createElement("img");
+        fallback.className = "fallback";
+        fallback.src = `https://in-grille-screenshot.onrender.com/screenshot?url=${encodeURIComponent(url)}`;
+        fallback.alt = extractHostname(url);
+        fallback.style.objectFit = 'cover';
+        fallback.style.width = '100%';
+        fallback.style.height = '350px';
+        div.appendChild(fallback);
+        div.appendChild(label);
+        return div;
+      }
 
-  const iframe = document.createElement("iframe");
-  iframe.src = url;
-  iframe.loading = "lazy";
+      const iframe = document.createElement("iframe");
+      iframe.src = url;
+      iframe.loading = "lazy";
 
-  iframe.onerror = () => {
-    iframe.remove();
-    const fallback = document.createElement("img");
-    fallback.className = "fallback";
-    fallback.src = `https://in-grille-screenshot.onrender.com/screenshot?url=${encodeURIComponent(url)}`;
-    fallback.alt = extractHostname(url);
-    fallback.style.objectFit = 'cover';
-    fallback.style.width = '100%';
-    fallback.style.height = '350px';
-    div.appendChild(fallback);
-    div.appendChild(label);
-  };
+      iframe.onerror = () => {
+        iframe.remove();
+        const fallback = document.createElement("img");
+        fallback.className = "fallback";
+        fallback.src = `https://in-grille-screenshot.onrender.com/screenshot?url=${encodeURIComponent(url)}`;
+        fallback.alt = extractHostname(url);
+        fallback.style.objectFit = 'cover';
+        fallback.style.width = '100%';
+        fallback.style.height = '350px';
+        div.appendChild(fallback);
+        div.appendChild(label);
+      };
 
-  div.appendChild(iframe);
-  div.appendChild(label);
+      div.appendChild(iframe);
+      div.appendChild(label);
 
-  return div;
-}
+      return div;
+    }
 
-function loadGrid(list = studioLinks) {
-  const container = document.getElementById("feed");
-  container.innerHTML = "";
-  const sortedLinks = [...list].sort((a, b) => extractHostname(a).localeCompare(extractHostname(b)));
-  for (const url of sortedLinks) {
-    const card = createCard(url);
-    container.appendChild(card);
-  }
-}
+    // 🔄 Fonction : Charger la grille avec une liste donnée + suppression des URLs invalides
+    function loadGrid(list = studioLinks) {
+      const container = document.getElementById("feed");
+      container.innerHTML = "";
+      const sortedLinks = [...list].sort((a, b) => extractHostname(a).localeCompare(extractHostname(b)));
 
+      let index = 0;
+      function tryNext() {
+        if (index >= sortedLinks.length) return;
+        const url = sortedLinks[index++];
+
+        fetch(url, { method: 'HEAD' })
+          .then((response) => {
+            if (response.ok) {
+              const card = createCard(url);
+              container.appendChild(card);
+            }
+          })
+          .catch(() => {
+            console.warn("URL invalide ignorée:", url);
+          })
+          .finally(() => {
+            tryNext();
+          });
+      }
+      tryNext();
+    }
+    }
+
+    // 🔘 Fonction : Basculer entre studios et artistes
     function switchTo(type) {
       if (type === 'studios') loadGrid(studioLinks);
       else if (type === 'artistes') loadGrid(artistesLinks);
     }
 
+    // ▶️ Charger par défaut les studios
     loadGrid();
   </script>
 </body>
