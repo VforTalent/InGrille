@@ -16,7 +16,7 @@
       color: #fff;
     }
     .controls {
-      position: sticky;
+      position: sticky;a
       top: 0;
       z-index: 10;
       padding: 1rem;
@@ -91,12 +91,46 @@
     }
     .site-label:hover { background: #eee; }
   </style>
+  <style>
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 220px;
+      height: 100%;
+      overflow-y: auto;
+      background-color: #f5f5f5;
+      color: #111;
+      padding: 1rem;
+      border-right: 1px solid #ddd;
+      z-index: 20;
+    }
+    .sidebar h2 {
+      margin-top: 0;
+      font-size: 1.2rem;
+      color: #333;
+    }
+    .sidebar ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    .sidebar li {
+      font-size: 0.9rem;
+      margin-bottom: 0.5rem;
+      word-break: break-word;
+    }
+  </style>
 </head>
 <body>
+  <div class="sidebar">
+    <h2>Liste des sites</h2>
+    <ul id="siteList"></ul>
+  </div>
 
   <!-- 🎛️ SECTION : Boutons de contrôle -->
   <div class="controls">
-    <button onclick="switchTo('studios')">Studios</button>
+        <button onclick="switchTo('studios')">Studios</button>
     <button onclick="switchTo('artistes')">Artistes</button>
   </div>
 
@@ -110,7 +144,7 @@
     const studioLinks = [
   "https://unireso-studio.com/", "https://additivestudios.co.uk/", "https://www.dkft.fr/",
   "http://www.mecanique-g.com/", "https://www.lightfield.london/", "https://www.weareink.co.uk/",
-  "https://17mars.com/", "https://3d-something.com/", "https://www.908video.de/", "https://ac3-studio.com/",
+  "https://17mars.com/", "https://www.908video.de/", "https://ac3-studio.com/",
   "https://www.aggressive.tv/", "https://aixsponza.com/", "https://antibody.tv/", "https://denisassor.com/",
   "https://www.atrbute.com/", "https://alexandreavram.com", "https://marcobergstein.com/",
   "https://bisous-production.com/", "https://www.bleedvfx.com/", "https://www.blublustudios.com/",
@@ -194,13 +228,38 @@
 
     // 🔄 Fonction : Charger la grille avec une liste donnée
     function loadGrid(list = studioLinks) {
-      const container = document.getElementById("feed");
-      container.innerHTML = "";
-      const sortedLinks = [...list].sort((a, b) => extractHostname(a).localeCompare(extractHostname(b)));
-      for (const url of sortedLinks) {
+  const container = document.getElementById("feed");
+  const siteList = document.getElementById("siteList");
+  container.innerHTML = "";
+  siteList.innerHTML = "";
+  const sortedLinks = [...list].sort((a, b) => extractHostname(a).localeCompare(extractHostname(b)));
+
+  let index = 0;
+  function tryNext() {
+    if (index >= sortedLinks.length) return;
+    const url = sortedLinks[index++];
+
+    fetch(url, { method: 'HEAD', mode: 'no-cors' })
+      .then(() => {
         const card = createCard(url);
         container.appendChild(card);
-      }
+
+        const item = document.createElement("li");
+        item.textContent = extractHostname(url);
+        item.style.cursor = "pointer";
+        item.onclick = () => showPreview(url);
+        siteList.appendChild(item);
+      })
+      .catch(() => {
+        console.warn("URL ignorée (inaccessible) :", url);
+      })
+      .finally(() => {
+        tryNext();
+      });
+  }
+
+  tryNext();
+}
     }
 
     // 🔘 Fonction : Basculer entre studios et artistes
@@ -209,8 +268,32 @@
       else if (type === 'artistes') loadGrid(artistesLinks);
     }
 
+    
+    // 🧭 Fonction : Afficher un aperçu en plein écran
+    function showPreview(url) {
+      const modal = document.getElementById("previewModal");
+      const frame = document.getElementById("previewFrame");
+      frame.src = url;
+      modal.style.display = "flex";
+    }
+
+    // ❌ Fonction : Fermer la fenêtre d'aperçu
+    function closePreview() {
+      const modal = document.getElementById("previewModal");
+      const frame = document.getElementById("previewFrame");
+      frame.src = "";
+      modal.style.display = "none";
+    }
+
     // ▶️ Charger par défaut les studios
     loadGrid();
   </script>
+  <!-- 🔍 Fenêtre d'aperçu -->
+  <div id="previewModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background-color:rgba(0,0,0,0.8); z-index:1000; justify-content:center; align-items:center;">
+    <div style="position:relative; width:90%; height:90%; background:#fff; border-radius:8px; overflow:hidden;">
+      <button onclick="closePreview()" style="position:absolute; top:10px; right:10px; z-index:1001; background:#e60023; color:#fff; border:none; padding:6px 12px; border-radius:4px; cursor:pointer;">Fermer</button>
+      <iframe id="previewFrame" src="" style="width:100%; height:100%; border:none;"></iframe>
+    </div>
+  </div>
 </body>
 </html>
