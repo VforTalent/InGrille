@@ -185,9 +185,10 @@
   }
 
   
+  return div;
 }
 
-    function loadGrid(list = studioLinks) {
+function loadGrid(list = studioLinks) {
   const container = document.getElementById("feed");
   container.innerHTML = "";
   const sortedLinks = [...list].sort((a, b) => extractHostname(a).localeCompare(extractHostname(b)));
