@@ -145,6 +145,19 @@
   label.target = "_blank";
   label.textContent = extractHostname(url);
 
+  iframe.onerror = () => {
+    iframe.remove();
+    const fallback = document.createElement("img");
+    fallback.className = "fallback";
+    fallback.src = `https://api.screenshotapi.net/screenshot?token=demo&url=${encodeURIComponent(url)}&width=1280&height=720&output=image&file_type=png`;
+    fallback.alt = extractHostname(url);
+    fallback.style.objectFit = 'cover';
+    fallback.style.width = '100%';
+    fallback.style.height = '350px';
+    div.appendChild(fallback);
+    div.appendChild(label);
+  };
+
   div.appendChild(iframe);
   div.appendChild(label);
 
