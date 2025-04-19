@@ -11,14 +11,14 @@
       margin: 0;
       padding: 0;
       background-color: #fff;
-      color: #111;
+      color: #fff;
     }
     .controls {
       position: sticky;
       top: 0;
       z-index: 10;
       padding: 1rem;
-      background: #fff;
+      background: #111;
       border-bottom: 1px solid #e0e0e0;
       display: flex;
       justify-content: center;
@@ -31,6 +31,7 @@
       border-radius: 24px;
       font-size: 1rem;
       cursor: pointer;
+      margin: 0 0.5rem;
     }
     .grid {
       column-count: 6;
@@ -71,7 +72,7 @@
       position: absolute;
       bottom: 12px;
       left: 12px;
-      background: rgba(255, 255, 255, 0.95);
+      background: rgba(0, 0, 0, 0.7);
       padding: 6px 12px;
       border-radius: 999px;
       font-size: 0.85rem;
@@ -91,45 +92,45 @@
 </head>
 <body>
   <div class="controls">
-  <button onclick="switchTo('studios')">Studios</button>
-  <button onclick="switchTo('artistes')">Artistes</button>
-</div>
+    <button onclick="switchTo('studios')">Studios</button>
+    <button onclick="switchTo('artistes')">Artistes</button>
+  </div>
   <div class="grid" id="feed"></div>
 
   <script>
     const studioLinks = [
-  "https://unireso-studio.com/", "https://additivestudios.co.uk/", "https://www.dkft.fr/",
-  "http://www.mecanique-g.com/", "https://www.lightfield.london/", "https://www.weareink.co.uk/",
-  "https://17mars.com/", "https://3d-something.com/", "https://www.908video.de/", "https://ac3-studio.com/",
-  "https://www.aggressive.tv/", "https://aixsponza.com/", "https://antibody.tv/", "https://denisassor.com/",
-  "https://www.atrbute.com/", "https://alexandreavram.com", "https://marcobergstein.com/",
-  "https://bisous-production.com/", "https://www.bleedvfx.com/", "https://www.blublustudios.com/",
-  "https://aboeinghoff.com/", "https://builders-club.com/", "https://butt-studio.com/",
-  "https://www.fredericcolin.com/", "https://catk.de/", "https://adriendezalay.com/",
-  "https://ditroit.it/", "https://janelsner.com/", "https://www.faubourg.tv/",
-  "https://www.feelingvisuel.com/", "https://finalfrontier.tv/", "https://www.fluentstudio.co.uk/",
-  "https://www.futurepowerstation.com/", "https://futuredeluxe.com/", "https://sylvaingaussens.com/",
-  "https://www.glassworksvfx.com/", "https://www.hyp3rion.com/", "https://www.i-reel.fr/",
-  "https://calango.nl/", "https://jvg.es/", "https://korb.tv/", "https://lecube.tv/",
-  "https://www.les-monstres.com/", "https://media.work/", "https://www.unit.tv/",
-  "https://www.altcinc.com/", "https://onesal.com/", "https://www.studioriver.fr/",
-  "https://newformat.io/", "https://www.monarch.tv/", "https://www.monumental.art/",
-  "https://xk.studio/", "https://gimmick.studio", "https://www.bloompictures.fr/",
-  "https://prism-studio.com/", "https://www.far-studio.com/", "https://visionaries777.com/",
-  "https://fixstudio.com/", "https://sevensenses.fr/", "https://www.fuelvfx.com/",
-  "https://www.nokill.fr/", "https://www.ravenstudio.tv/", "https://blirp.tv/",
-  "https://www.parisberlin.tv/", "https://makemepulse.com/", "https://www.niceandserious.com/",
-  "https://www.framestore.com/", "https://www.platige.com/", "https://panoply.co.uk/",
-  "https://www.moving-picture.com/", "https://www.tendril.ca/", "https://www.creamstudio.com/",
-  "https://www.takumikamiyama.com/", "https://mattrunks.com/", "https://www.troisvingtsix.com/",
-  "https://ambassadors.com/"
-];
+      "https://unireso-studio.com/", "https://additivestudios.co.uk/", "https://www.dkft.fr/",
+      "http://www.mecanique-g.com/", "https://www.lightfield.london/", "https://www.weareink.co.uk/",
+      "https://17mars.com/", "https://3d-something.com/", "https://www.908video.de/", "https://ac3-studio.com/",
+      "https://www.aggressive.tv/", "https://aixsponza.com/", "https://antibody.tv/", "https://denisassor.com/",
+      "https://www.atrbute.com/", "https://alexandreavram.com", "https://marcobergstein.com/",
+      "https://bisous-production.com/", "https://www.bleedvfx.com/", "https://www.blublustudios.com/",
+      "https://aboeinghoff.com/", "https://builders-club.com/", "https://butt-studio.com/",
+      "https://www.fredericcolin.com/", "https://catk.de/", "https://adriendezalay.com/",
+      "https://ditroit.it/", "https://janelsner.com/", "https://www.faubourg.tv/",
+      "https://www.feelingvisuel.com/", "https://finalfrontier.tv/", "https://www.fluentstudio.co.uk/",
+      "https://www.futurepowerstation.com/", "https://futuredeluxe.com/", "https://sylvaingaussens.com/",
+      "https://www.glassworksvfx.com/", "https://www.hyp3rion.com/", "https://www.i-reel.fr/",
+      "https://calango.nl/", "https://jvg.es/", "https://korb.tv/", "https://lecube.tv/",
+      "https://www.les-monstres.com/", "https://media.work/", "https://www.unit.tv/",
+      "https://www.altcinc.com/", "https://onesal.com/", "https://www.studioriver.fr/",
+      "https://newformat.io/", "https://www.monarch.tv/", "https://www.monumental.art/",
+      "https://xk.studio/", "https://gimmick.studio", "https://www.bloompictures.fr/",
+      "https://prism-studio.com/", "https://www.far-studio.com/", "https://visionaries777.com/",
+      "https://fixstudio.com/", "https://sevensenses.fr/", "https://www.fuelvfx.com/",
+      "https://www.nokill.fr/", "https://www.ravenstudio.tv/", "https://blirp.tv/",
+      "https://www.parisberlin.tv/", "https://makemepulse.com/", "https://www.niceandserious.com/",
+      "https://www.framestore.com/", "https://www.platige.com/", "https://panoply.co.uk/",
+      "https://www.moving-picture.com/", "https://www.tendril.ca/", "https://www.creamstudio.com/",
+      "https://www.takumikamiyama.com/", "https://mattrunks.com/", "https://www.troisvingtsix.com/",
+      "https://ambassadors.com/"
+    ];
 
-const artistesLinks = [
-  "https://www.instagram.com/ash_thorp/", "https://www.instagram.com/felix_baffa/",
-  "https://www.instagram.com/jack_of_all_arts/", "https://www.instagram.com/patspov/",
-  "https://www.instagram.com/polkadotandmoonbeam/", "https://www.instagram.com/fredgoris/"
-];
+    const artistesLinks = [
+      "https://www.instagram.com/ash_thorp/", "https://www.instagram.com/felix_baffa/",
+      "https://www.instagram.com/jack_of_all_arts/", "https://www.instagram.com/patspov/",
+      "https://www.instagram.com/polkadotandmoonbeam/", "https://www.instagram.com/fredgoris/"
+    ];
 
     function extractHostname(url) {
       try {
@@ -140,54 +141,54 @@ const artistesLinks = [
     }
 
     function createCard(url) {
-  const div = document.createElement("div");
-  div.className = "profile";
+      const div = document.createElement("div");
+      div.className = "profile";
 
-  const iframe = document.createElement("iframe");
-  iframe.src = `/api/proxy?url=${encodeURIComponent(url)}`;
-  iframe.loading = "lazy";
+      const iframe = document.createElement("iframe");
+      iframe.src = `/api/proxy?url=${encodeURIComponent(url)}`;
+      iframe.loading = "lazy";
 
-  const label = document.createElement("a");
-  label.className = "site-label";
-  label.href = url;
-  label.target = "_blank";
-  label.textContent = extractHostname(url);
+      const label = document.createElement("a");
+      label.className = "site-label";
+      label.href = url;
+      label.target = "_blank";
+      label.textContent = extractHostname(url);
 
-  iframe.onerror = () => {
-    iframe.remove();
-    const fallback = document.createElement("img");
-    fallback.className = "fallback";
-    fallback.src = `https://api.screenshotapi.net/screenshot?token=demo&url=${encodeURIComponent(url)}&width=1280&height=720&output=image&file_type=png`;
-    fallback.alt = extractHostname(url);
-    fallback.style.objectFit = 'cover';
-    fallback.style.width = '100%';
-    fallback.style.height = '350px';
-    div.appendChild(fallback);
-    div.appendChild(label);
-  };
-
-  div.appendChild(iframe);
+      iframe.onerror = () => {
+  iframe.remove();
+  const fallback = document.createElement("img");
+  fallback.className = "fallback";
+  fallback.src = `https://in-grille-screenshot.onrender.com/screenshot?url=${encodeURIComponent(url)}`;
+  fallback.alt = extractHostname(url);
+  fallback.style.objectFit = 'cover';
+  fallback.style.width = '100%';
+  fallback.style.height = '350px';
+  div.appendChild(fallback);
   div.appendChild(label);
+};
 
-  return div;
-}
+      div.appendChild(iframe);
+      div.appendChild(label);
+
+      return div;
+    }
 
     function loadGrid(list = studioLinks) {
-  const container = document.getElementById("feed");
-  container.innerHTML = "";
-  const sortedLinks = [...list].sort((a, b) => extractHostname(a).localeCompare(extractHostname(b)));
-  for (const url of sortedLinks) {
-    const card = createCard(url);
-    container.appendChild(card);
-  }
-}
+      const container = document.getElementById("feed");
+      container.innerHTML = "";
+      const sortedLinks = [...list].sort((a, b) => extractHostname(a).localeCompare(extractHostname(b)));
+      for (const url of sortedLinks) {
+        const card = createCard(url);
+        container.appendChild(card);
+      }
+    }
+
+    function switchTo(type) {
+      if (type === 'studios') loadGrid(studioLinks);
+      else if (type === 'artistes') loadGrid(artistesLinks);
     }
 
     loadGrid();
-  function switchTo(type) {
-  if (type === 'studios') loadGrid(studioLinks);
-  else if (type === 'artistes') loadGrid(artistesLinks);
-}
-</script>
+  </script>
 </body>
 </html>
