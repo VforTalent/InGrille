@@ -135,7 +135,7 @@
       stroke-width: 2;
     }
   </style>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"><script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 async function getBehanceWebsiteUrl(profileUrl) {
   try {
     const username = profileUrl.split("behance.net/")[1].replace(/\/$/, '');
@@ -153,6 +153,25 @@ async function getBehanceWebsiteUrl(profileUrl) {
   } catch (e) {
     console.error('Behance lookup failed for', profileUrl, e);
     return { website: null, name: null };
+  }
+}
+
+<script>
+async function getInstagramProfileName(profileUrl) {
+  try {
+    const username = profileUrl.split("instagram.com/")[1].replace(/\/$/, '');
+    const proxyUrl = `https://api.allorigins.win/raw?url=https://www.instagram.com/${username}/`;
+    const res = await fetch(proxyUrl);
+    const html = await res.text();
+    const doc = new DOMParser().parseFromString(html, 'text/html');
+
+    const nameElement = doc.querySelector('meta[property="og:title"]') || doc.querySelector('title');
+    const name = nameElement ? nameElement.content || nameElement.innerText : null;
+
+    return { name };
+  } catch (e) {
+    console.error('Instagram lookup failed for', profileUrl, e);
+    return { name: null };
   }
 }
 </script>
@@ -279,6 +298,9 @@ async function loadGrid(list = studioLinks) {
       const behanceData = await getBehanceWebsiteUrl(url);
       finalUrl = behanceData.website || url;
       displayName = behanceData.name || extractHostname(url);
+    } else if (url.includes("instagram.com")) {
+      const instaData = await getInstagramProfileName(url);
+      displayName = instaData.name || extractHostname(url);
     }
     const card = await createCard(finalUrl, displayName);
     container.appendChild(card);
