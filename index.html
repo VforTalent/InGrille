@@ -162,7 +162,7 @@
   }
 
   const iframe = document.createElement("iframe");
-  iframe.src = `/api/proxy?url=${encodeURIComponent(url)}`;
+  iframe.src = url;
   iframe.loading = "lazy";
 
   iframe.onerror = () => {
