@@ -187,7 +187,18 @@
       label.className = "site-label";
       label.href = url;
       label.target = "_blank";
-      label.textContent = extractHostname(url);
+      if (url.includes("instagram.com/")) {
+        const parts = url.split("instagram.com/");
+        label.textContent = parts[1]?.replace(/\/$/, '') || extractHostname(url);
+      } else if (url.includes("behance.net/")) {
+        const parts = url.split("behance.net/");
+        label.textContent = parts[1]?.replace(/\/$/, '') || extractHostname(url);
+      } else {lse if (url.includes("behance.net/")) {
+          const parts = url.split("behance.net/");
+          item.textContent = parts[1]?.replace(/\/$/, '') || extractHostname(url);
+        } else {
+        label.textContent = extractHostname(url);
+      }
 
       if (url.includes("instagram.com")) {
         const fallback = document.createElement("img");
@@ -253,7 +264,12 @@
 
         if (siteList) {
           const item = document.createElement("li");
+        if (url.includes("instagram.com/")) {
+          const parts = url.split("instagram.com/");
+          item.textContent = parts[1]?.replace(/\/$/, '') || extractHostname(url);
+        } else {
           item.textContent = extractHostname(url);
+        }
           item.style.cursor = "pointer";
           item.onclick = () => showPreview(url);
           siteList.appendChild(item);
@@ -262,7 +278,7 @@
     }
 
     function switchTo(type) {
-      if (type === 'studios') loadGrid(studioLinks);
+      if (type === 'studios') switchTo('studios');
       else if (type === 'artistes') loadGrid(artistesLinks);
     }
 
