@@ -36,12 +36,16 @@
       transition: all 0.3s ease;
     }
     .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(364px, 1fr));
-      gap: 1rem;
+      column-count: 6;
+      column-gap: 1rem;
       padding: 1rem;
     }
+    @media (max-width: 1400px) {.grid { column-count: 4; }}
+    @media (max-width: 1024px) {.grid { column-count: 3; }}
+    @media (max-width: 768px) {.grid { column-count: 2; }}
+    @media (max-width: 480px) {.grid { column-count: 1; }}
     .profile {
+      break-inside: avoid;
       margin-bottom: 1rem;
       border-radius: 16px;
       overflow: hidden;
@@ -55,11 +59,11 @@
       width: 100%;
       border: none;
       display: block;
-      height: 630px;
+      height: 420px;
     }
     .fallback {
       width: 100%;
-      height: 630px;
+      height: 420px;
       display: flex;
       justify-content: center;
       align-items: center;
@@ -81,6 +85,9 @@
       display: flex;
       align-items: center;
       gap: 6px;
+    }
+    .site-label::before {
+      content: "";
     }
     .site-label:hover { background: #eee; }
     .sidebar {
@@ -150,7 +157,7 @@
 
   <div class="controls">
     <button id="btnStudios" onclick="switchTo('studios')">Studios</button>
-    <button id="btnArtistes" onclick="switchTo('artistes')">Talents</button>
+    <button id="btnArtistes" onclick="switchTo('artistes')">Artistes</button>
   </div>
   <div class="grid" id="feed"></div>
 
@@ -160,164 +167,187 @@
       <iframe id="previewFrame" src="" style="width:100%; height:100%; border:none;"></iframe>
     </div>
   </div>
-<script>
-let studioLinks = [];
-let artistesLinks = [];
 
-function extractHostname(url) {
-  try {
-    return new URL(url).hostname.replace(/^www\./, '').replace(/^http:\/\//, '').replace(/^https:\/\//, '').split('/')[0];
-  } catch (e) {
-    return url;
-  }
-}
+  <script>
+    let studioLinks = [];
+    let artistesLinks = [];
 
-function createCard(url) {
-  const div = document.createElement("div");
-  div.className = "profile";
-
-  const label = document.createElement("a");
-  label.className = "site-label";
-  label.href = url;
-  label.target = "_blank";
-
-  label.textContent = extractHostname(url);
-
-  if (url.includes("instagram.com")) {
-    const fallback = document.createElement("img");
-    fallback.className = "fallback";
-    fallback.src = `https://in-grille-screenshot.onrender.com/screenshot?url=${encodeURIComponent(url)}`;
-    fallback.alt = extractHostname(url);
-    fallback.style.objectFit = 'cover';
-    fallback.style.width = '100%';
-    fallback.style.height = '630px';
-    div.appendChild(fallback);
-    div.appendChild(label);
-    return div;
-  }
-
-  const iframe = document.createElement("iframe");
-  iframe.src = url;
-  iframe.loading = "lazy";
-
-  iframe.onerror = () => {
-    iframe.remove();
-    const fallback = document.createElement("img");
-    fallback.className = "fallback";
-    fallback.src = `https://in-grille-screenshot.onrender.com/screenshot?url=${encodeURIComponent(url)}`;
-    fallback.alt = extractHostname(url);
-    fallback.style.objectFit = 'cover';
-    fallback.style.width = '100%';
-    fallback.style.height = '630px';
-    div.appendChild(fallback);
-    div.appendChild(label);
-  };
-
-  div.appendChild(iframe);
-  div.appendChild(label);
-  return div;
-}
-
-function showPreview(url) {
-  const modal = document.getElementById("previewModal");
-  const frame = document.getElementById("previewFrame");
-  frame.src = url;
-  modal.style.display = "flex";
-
-  setTimeout(() => {
-    window.addEventListener("click", handleOutsideClick);
-  }, 0);
-
-  function handleOutsideClick(e) {
-    if (!modal.contains(e.target) || e.target === modal) {
-      closePreview();
-      window.removeEventListener("click", handleOutsideClick);
+    function extractHostname(url) {
+      try {
+        return new URL(url).hostname.replace('www.', '').split('/')[0];
+      } catch (e) {
+        return url;
+      }
     }
-  }
-}
 
-function closePreview() {
-  const modal = document.getElementById("previewModal");
-  const frame = document.getElementById("previewFrame");
-  frame.src = "";
-  modal.style.display = "none";
-}
+    function createCard(url) {
+      const div = document.createElement("div");
+      div.className = "profile";
 
-function loadGrid(list = studioLinks) {
-  const container = document.getElementById("feed");
-  const siteList = document.getElementById("siteList");
-  container.innerHTML = "";
-  if (siteList) siteList.innerHTML = "";
+      const label = document.createElement("a");
+      label.className = "site-label";
+      label.href = url;
+      label.target = "_blank";
+      if (url.includes("instagram.com/")) {
+        const parts = url.split("instagram.com/");
+        label.textContent = parts[1]?.replace(/\/$/, '') || extractHostname(url);
+      } else if (url.includes("behance.net/")) {
+        const parts = url.split("behance.net/");
+        label.textContent = parts[1]?.replace(/\/$/, '') || extractHostname(url);
+      } else {
+        label.textContent = extractHostname(url);
+      }
 
-  const getDisplayLabel = (url) => extractHostname(url);
+      if (url.includes("instagram.com")) {
+        const fallback = document.createElement("img");
+        fallback.className = "fallback";
+        fallback.src = `https://in-grille-screenshot.onrender.com/screenshot?url=${encodeURIComponent(url)}`;
+        fallback.alt = extractHostname(url);
+        fallback.style.objectFit = 'cover';
+        fallback.style.width = '100%';
+        fallback.style.height = '420px';
+        div.appendChild(fallback);
+        div.appendChild(label);
+        return div;
+      }
 
-  const sorted = [...list].sort((a, b) => getDisplayLabel(a).localeCompare(getDisplayLabel(b)));
-  for (const url of sorted) {
-    const card = createCard(url);
-    container.appendChild(card);
+      const iframe = document.createElement("iframe");
+      iframe.src = url;
+      iframe.loading = "lazy";
 
-    if (siteList) {
-      const item = document.createElement("li");
-      item.textContent = extractHostname(url);
-      item.style.cursor = "pointer";
-      item.onclick = () => {
-  showPreview(url);
-  const allItems = document.querySelectorAll('#siteList li');
-  allItems.forEach(i => {
-    i.style.backgroundColor = '';
-    i.style.textDecoration = 'none';
-  });
-  item.style.backgroundColor = 'yellow';
-  item.style.textDecoration = 'line-through';
-};
-      siteList.appendChild(item);
+      iframe.onerror = () => {
+        iframe.remove();
+        const fallback = document.createElement("img");
+        fallback.className = "fallback";
+        fallback.src = `https://in-grille-screenshot.onrender.com/screenshot?url=${encodeURIComponent(url)}`;
+        fallback.alt = extractHostname(url);
+        fallback.style.objectFit = 'cover';
+        fallback.style.width = '100%';
+        fallback.style.height = '420px';
+        div.appendChild(fallback);
+        div.appendChild(label);
+      };
+
+      div.appendChild(iframe);
+      div.appendChild(label);
+
+      return div;
     }
-  }
-}
 
-function switchTo(type) {
-  document.getElementById("btnStudios").style.backgroundColor = "#fff";
-  document.getElementById("btnArtistes").style.backgroundColor = "#fff";
-  document.getElementById("btnStudios").style.textDecoration = "none";
-  document.getElementById("btnArtistes").style.textDecoration = "none";
-document.getElementById("btnArtistes").textContent = "Talents";
+    function showPreview(url) {
+      const modal = document.getElementById("previewModal");
+      const frame = document.getElementById("previewFrame");
+      frame.src = url;
+      modal.style.display = "flex";
 
-  if (type === 'studios') {
-    document.getElementById("btnStudios").style.backgroundColor = "yellow";
-    document.getElementById("btnStudios").style.textDecoration = "line-through";
-  } else if (type === 'artistes') {
-    document.getElementById("btnArtistes").style.backgroundColor = "yellow";
-    document.getElementById("btnArtistes").style.textDecoration = "line-through";
-  }
+      setTimeout(() => {
+        window.addEventListener("click", handleOutsideClick);
+      }, 0);
 
-  const sidebarTitle = document.getElementById("sidebarTitle");
-  if (type === 'studios') {
-    if (sidebarTitle) sidebarTitle.textContent = "Liste des studios";
-    loadGrid(studioLinks);
-  } else if (type === 'artistes') {
-    if (sidebarTitle) sidebarTitle.textContent = "Liste des talents";
-    loadGrid(artistesLinks);
-  }
-}
+      function handleOutsideClick(e) {
+        if (!modal.contains(e.target) || e.target === modal) {
+          closePreview();
+          window.removeEventListener("click", handleOutsideClick);
+        }
+      }
+    }
 
-async function fetchExcel(fileUrl) {
-  const res = await fetch(fileUrl);
-  const blob = await res.blob();
-  const data = await blob.arrayBuffer();
-  const workbook = XLSX.read(data, { type: 'array' });
+    function closePreview() {
+      const modal = document.getElementById("previewModal");
+      const frame = document.getElementById("previewFrame");
+      frame.src = "";
+      modal.style.display = "none";
+    }
 
-  const sheetStudios = workbook.Sheets[workbook.SheetNames[0]];
-  const jsonStudios = XLSX.utils.sheet_to_json(sheetStudios, { header: 1 });
-  studioLinks = jsonStudios.slice(1).map(row => typeof row[3] === 'string' ? row[3].trim() : null).filter(Boolean);
+    function loadGrid(list = studioLinks) {
+      const container = document.getElementById("feed");
+      const siteList = document.getElementById("siteList");
+      container.innerHTML = "";
+      if (siteList) siteList.innerHTML = "";
 
-  const sheetArtistes = workbook.Sheets[workbook.SheetNames[1]];
-  const jsonArtistes = XLSX.utils.sheet_to_json(sheetArtistes, { header: 1 });
-  artistesLinks = jsonArtistes.slice(1).map(row => typeof row[1] === 'string' ? row[1].trim() : null).filter(Boolean);
+      const sortedLinks = [...list].sort((a, b) => extractHostname(a).localeCompare(b));
 
-  loadGrid(studioLinks);
-}
+      for (const url of sortedLinks) {
+        const card = createCard(url);
+        container.appendChild(card);
 
-window.onload = () => fetchExcel('./data/LISTING_GRAPHISTES_ET_STUDIOS.xlsx');
-</script>
+        if (siteList) {
+          const item = document.createElement("li");
+          if (url.includes("instagram.com/")) {
+            const parts = url.split("instagram.com/");
+            item.textContent = parts[1]?.replace(/\/$/, '') || extractHostname(url);
+          } else if (url.includes("behance.net/")) {
+            const parts = url.split("behance.net/");
+            item.textContent = parts[1]?.replace(/\/$/, '') || extractHostname(url);
+          } else {
+            item.textContent = extractHostname(url);
+          }
+          item.style.cursor = "pointer";
+          item.onclick = () => {
+            const modal = document.getElementById("previewModal");
+            if (modal.style.display !== "flex") {
+              showPreview(url);
+            } else {
+              const frame = document.getElementById("previewFrame");
+              frame.src = url;
+            }
+            const allItems = document.querySelectorAll('#siteList li');
+            allItems.forEach(i => {
+              i.style.backgroundColor = '';
+              i.style.textDecoration = 'none';
+            });
+            item.style.backgroundColor = 'yellow';
+            item.style.textDecoration = 'line-through';
+          };
+          siteList.appendChild(item);
+        }
+      }
+    }
+
+    function switchTo(type) {
+      document.getElementById("btnStudios").style.backgroundColor = "#fff";
+      document.getElementById("btnArtistes").style.backgroundColor = "#fff";
+      document.getElementById("btnStudios").style.textDecoration = "none";
+      document.getElementById("btnArtistes").style.textDecoration = "none";
+
+      if (type === 'studios') {
+        document.getElementById("btnStudios").style.backgroundColor = "yellow";
+        document.getElementById("btnStudios").style.textDecoration = "line-through";
+        document.getElementById("btnStudios").style.border = "none";
+      } else if (type === 'artistes') {
+        document.getElementById("btnArtistes").style.backgroundColor = "yellow";
+        document.getElementById("btnArtistes").style.textDecoration = "line-through";
+        document.getElementById("btnArtistes").style.border = "none";
+      }
+
+      const sidebarTitle = document.getElementById("sidebarTitle");
+      if (type === 'studios') {
+        if (sidebarTitle) sidebarTitle.textContent = "Liste des studios";
+        loadGrid(studioLinks);
+      } else if (type === 'artistes') {
+        if (sidebarTitle) sidebarTitle.textContent = "Liste des talents";
+        loadGrid(artistesLinks);
+      }
+    }
+
+    async function fetchExcel(fileUrl) {
+      const res = await fetch(fileUrl);
+      const blob = await res.blob();
+      const data = await blob.arrayBuffer();
+      const workbook = XLSX.read(data, { type: 'array' });
+
+      const sheetStudios = workbook.Sheets[workbook.SheetNames[0]];
+      const jsonStudios = XLSX.utils.sheet_to_json(sheetStudios, { header: 1 });
+      studioLinks = jsonStudios.slice(1).map(row => row[3]).filter(Boolean);
+
+      const sheetArtistes = workbook.Sheets[workbook.SheetNames[1]];
+      const jsonArtistes = XLSX.utils.sheet_to_json(sheetArtistes, { header: 1 });
+      artistesLinks = jsonArtistes.slice(1).map(row => row[1]).filter(Boolean);
+
+      loadGrid(studioLinks);
+    }
+
+    window.onload = () => fetchExcel('./data/LISTING_GRAPHISTES_ET_STUDIOS.xlsx');
+  </script>
 </body>
 </html>
