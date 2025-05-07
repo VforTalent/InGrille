@@ -12,28 +12,27 @@
       margin: 0;
       padding: 0;
       background-color: #fff;
-      color: #111; font-weight: 500;
+      color: #111;
     }
     .controls {
       position: sticky;
       top: 0;
       z-index: 10;
       padding: 1rem;
-      background: #fff;
+      background: #111;
       border-bottom: 1px solid #e0e0e0;
       display: flex;
       justify-content: center;
     }
     .controls button {
-      background: none;
-      color: #111;
+      background: #e60023;
+      color: white;
       border: none;
       padding: 0.7rem 1.5rem;
-      font-size: 1.2rem;
-      font-weight: 500;
+      border-radius: 24px;
+      font-size: 1rem;
       cursor: pointer;
       margin: 0 0.5rem;
-      transition: all 0.3s ease;
     }
     .grid {
       column-count: 6;
@@ -59,11 +58,11 @@
       width: 100%;
       border: none;
       display: block;
-      height: 420px;
+      height: 350px;
     }
     .fallback {
       width: 100%;
-      height: 420px;
+      height: 350px;
       display: flex;
       justify-content: center;
       align-items: center;
@@ -74,7 +73,7 @@
       position: absolute;
       bottom: 12px;
       left: 12px;
-      background: #fff;
+      background: rgba(0, 0, 0, 0.7);
       padding: 6px 12px;
       border-radius: 999px;
       font-size: 0.85rem;
@@ -134,7 +133,6 @@
       margin-bottom: 1rem;
     }
     .sidebar-icon svg {
-      min-width: 24px;
       width: 24px;
       height: 24px;
       stroke: #111;
@@ -142,7 +140,7 @@
       stroke-width: 2;
     }
   </style>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
 <body>
   <div class="sidebar">
@@ -151,25 +149,26 @@
         <path d="M3 9.5L12 3l9 6.5v11a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1v-11z" />
       </svg>
     </div>
-    <h2 id="sidebarTitle">Sites</h2>
+    <h2>Sites</h2>
     <ul id="siteList"></ul>
   </div>
 
   <div class="controls">
-    <button id="btnStudios" onclick="switchTo('studios')">Studios</button>
-    <button id="btnArtistes" onclick="switchTo('artistes')">Artistes</button>
+    <button onclick="switchTo('studios')">Studios</button>
+    <button onclick="switchTo('artistes')">Artistes</button>
   </div>
   <div class="grid" id="feed"></div>
 
   <div id="previewModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background-color:rgba(0,0,0,0.8); z-index:1000; justify-content:center; align-items:center;">
     <div style="position:relative; width:90%; height:90%; background:#fff; border-radius:8px; overflow:hidden;">
-      <button id="closePreviewBtn" onclick="closePreview()" style="background:#fff; color:#111; border:none; padding:6px 12px; border-radius:4px; cursor:pointer; text-decoration: line-through; background-color: yellow;">Fermer</button>
+      <button onclick="closePreview()" style="position:absolute; top:10px; right:10px; z-index:1001; background:#e60023; color:#fff; border:none; padding:6px 12px; border-radius:4px; cursor:pointer;">Fermer</button>
       <iframe id="previewFrame" src="" style="width:100%; height:100%; border:none;"></iframe>
     </div>
   </div>
 
   <script>
     let studioLinks = [];
+
     let artistesLinks = [];
 
     function extractHostname(url) {
@@ -188,15 +187,7 @@
       label.className = "site-label";
       label.href = url;
       label.target = "_blank";
-      if (url.includes("instagram.com/")) {
-        const parts = url.split("instagram.com/");
-        label.textContent = parts[1]?.replace(/\/$/, '') || extractHostname(url);
-      } else if (url.includes("behance.net/")) {
-        const parts = url.split("behance.net/");
-        label.textContent = parts[1]?.replace(/\/$/, '') || extractHostname(url);
-      } else {
-        label.textContent = extractHostname(url);
-      }
+      label.textContent = extractHostname(url);
 
       if (url.includes("instagram.com")) {
         const fallback = document.createElement("img");
@@ -205,7 +196,7 @@
         fallback.alt = extractHostname(url);
         fallback.style.objectFit = 'cover';
         fallback.style.width = '100%';
-        fallback.style.height = '420px';
+        fallback.style.height = '350px';
         div.appendChild(fallback);
         div.appendChild(label);
         return div;
@@ -223,7 +214,7 @@
         fallback.alt = extractHostname(url);
         fallback.style.objectFit = 'cover';
         fallback.style.width = '100%';
-        fallback.style.height = '420px';
+        fallback.style.height = '350px';
         div.appendChild(fallback);
         div.appendChild(label);
       };
@@ -239,17 +230,6 @@
       const frame = document.getElementById("previewFrame");
       frame.src = url;
       modal.style.display = "flex";
-
-      setTimeout(() => {
-        window.addEventListener("click", handleOutsideClick);
-      }, 0);
-
-      function handleOutsideClick(e) {
-        if (!modal.contains(e.target) || e.target === modal) {
-          closePreview();
-          window.removeEventListener("click", handleOutsideClick);
-        }
-      }
     }
 
     function closePreview() {
@@ -265,7 +245,7 @@
       container.innerHTML = "";
       if (siteList) siteList.innerHTML = "";
 
-      const sortedLinks = [...list].sort((a, b) => extractHostname(a).localeCompare(b));
+      const sortedLinks = [...list].sort((a, b) => extractHostname(a).localeCompare(extractHostname(b)));
 
       for (const url of sortedLinks) {
         const card = createCard(url);
@@ -273,81 +253,43 @@
 
         if (siteList) {
           const item = document.createElement("li");
-          if (url.includes("instagram.com/")) {
-            const parts = url.split("instagram.com/");
-            item.textContent = parts[1]?.replace(/\/$/, '') || extractHostname(url);
-          } else if (url.includes("behance.net/")) {
-            const parts = url.split("behance.net/");
-            item.textContent = parts[1]?.replace(/\/$/, '') || extractHostname(url);
-          } else {
-            item.textContent = extractHostname(url);
-          }
+          item.textContent = extractHostname(url);
           item.style.cursor = "pointer";
-          item.onclick = () => {
-            const modal = document.getElementById("previewModal");
-            if (modal.style.display !== "flex") {
-              showPreview(url);
-            } else {
-              const frame = document.getElementById("previewFrame");
-              frame.src = url;
-            }
-            const allItems = document.querySelectorAll('#siteList li');
-            allItems.forEach(i => {
-              i.style.backgroundColor = '';
-              i.style.textDecoration = 'none';
-            });
-            item.style.backgroundColor = 'yellow';
-            item.style.textDecoration = 'line-through';
-          };
+          item.onclick = () => showPreview(url);
           siteList.appendChild(item);
         }
       }
     }
 
     function switchTo(type) {
-      document.getElementById("btnStudios").style.backgroundColor = "#fff";
-      document.getElementById("btnArtistes").style.backgroundColor = "#fff";
-      document.getElementById("btnStudios").style.textDecoration = "none";
-      document.getElementById("btnArtistes").style.textDecoration = "none";
-
-      if (type === 'studios') {
-        document.getElementById("btnStudios").style.backgroundColor = "yellow";
-        document.getElementById("btnStudios").style.textDecoration = "line-through";
-        document.getElementById("btnStudios").style.border = "none";
-      } else if (type === 'artistes') {
-        document.getElementById("btnArtistes").style.backgroundColor = "yellow";
-        document.getElementById("btnArtistes").style.textDecoration = "line-through";
-        document.getElementById("btnArtistes").style.border = "none";
-      }
-
-      const sidebarTitle = document.getElementById("sidebarTitle");
-      if (type === 'studios') {
-        if (sidebarTitle) sidebarTitle.textContent = "Liste des studios";
-        loadGrid(studioLinks);
-      } else if (type === 'artistes') {
-        if (sidebarTitle) sidebarTitle.textContent = "Liste des talents";
-        loadGrid(artistesLinks);
-      }
+      if (type === 'studios') loadGrid(studioLinks);
+      else if (type === 'artistes') loadGrid(artistesLinks);
     }
 
     async function fetchExcel(fileUrl) {
-      const res = await fetch(fileUrl);
-      const blob = await res.blob();
-      const data = await blob.arrayBuffer();
-      const workbook = XLSX.read(data, { type: 'array' });
+  const res = await fetch(fileUrl);
+  const blob = await res.blob();
+  const data = await blob.arrayBuffer();
+  const workbook = XLSX.read(data, { type: 'array' });
 
-      const sheetStudios = workbook.Sheets[workbook.SheetNames[0]];
-      const jsonStudios = XLSX.utils.sheet_to_json(sheetStudios, { header: 1 });
-      studioLinks = jsonStudios.slice(1).map(row => row[3]).filter(Boolean);
+  const sheetStudios = workbook.Sheets[workbook.SheetNames[0]];
+  const jsonStudios = XLSX.utils.sheet_to_json(sheetStudios, { header: 1 });
+  studioLinks = jsonStudios.slice(1).map(row => row[3]).filter(Boolean);
 
-      const sheetArtistes = workbook.Sheets[workbook.SheetNames[1]];
-      const jsonArtistes = XLSX.utils.sheet_to_json(sheetArtistes, { header: 1 });
-      artistesLinks = jsonArtistes.slice(1).map(row => row[1]).filter(Boolean);
+  const sheetArtistes = workbook.Sheets[workbook.SheetNames[1]];
+  const jsonArtistes = XLSX.utils.sheet_to_json(sheetArtistes, { header: 1 });
+  artistesLinks = jsonArtistes.slice(1).map(row => row[1]).filter(Boolean);
 
-      loadGrid(studioLinks);
-    }
+  loadGrid(studioLinks);
+}
 
-    window.onload = () => fetchExcel('./data/LISTING_GRAPHISTES_ET_STUDIOS.xlsx');
+async function loadAll() {
+  studioLinks = await fetchCSV('./data/STUDIOS.csv', 3);    // colonne D = index 3
+  artistesLinks = await fetchCSV('./data/ARTISTES.csv', 1); // colonne B = index 1
+  loadGrid(studioLinks);
+}
+
+window.onload = () => fetchExcel('./data/LISTING_GRAPHISTES_ET_STUDIOS.xlsx');
   </script>
 </body>
 </html>
